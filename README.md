@@ -14,7 +14,6 @@ Here are the programming languages I’m proficient in:
  | PHP | SQL |
  | Dart | Python|
 
----
 Feel free to explore my projects and get in touch if you'd like to collaborate or learn more about my work!
 
 ## Piscine
