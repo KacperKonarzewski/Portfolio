@@ -30,3 +30,5 @@ During the Piscine:
 The Piscine helped me hone my skills in **C programming**, while also reinforcing my problem-solving abilities and solidifying my passion for tackling complex challenges.
 
 This experience isn’t just a highlight of my journey but a testament to my dedication to learning and growth.
+
+![Alt text](/Piscine/MyPiscineAccount.png?raw=true "Piscine Level")
