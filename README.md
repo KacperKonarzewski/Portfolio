@@ -1,8 +1,8 @@
 # Welcome to My Portfolio!
 
-Hi there! I'm **Kacper**, a passionate programmer with over **12 years** of (non-commercial)experience in the tech world. I started exploring technology at a very young age — I was **3 or 4 years old** when I first began using computers. By the age of **8**, I had already developed a strong curiosity about how games and software are created, which led me to dive into programming.
+Hi there! I'm **Kacper**, a passionate programmer with over **12 years** of (non-commercial) experience in the tech world. I started exploring technology at a very young age — I was **3 or 4 years old** when I first began using computers. By the age of **8**, I had already developed a strong curiosity about how games and software are created, which led me to dive into programming.
 
-My journey began with **C#**, and to this day, I feel most at home working with it, particularly within the **.NET** framework. However, my knowledge extends far beyond just C#, as I love learning new languages and exploring different areas of programming (just started working as a programmer commercially).
+My journey began with **C#**, and to this day, I feel most at home working with it, particularly within the **.NET** framework. However, my knowledge extends far beyond just C#, as I love learning new languages and exploring different areas of programming (I have just started working as a programmer commercially).
 
 Here are the programming languages I’m proficient in: 
 -
@@ -16,3 +16,17 @@ Here are the programming languages I’m proficient in:
 
 ---
 Feel free to explore my projects and get in touch if you'd like to collaborate or learn more about my work!
+
+## Piscine
+
+**Piscine** dictionary is filled with **C** projects from _**42 Warsaw**_. 42 is a network of programming schools that originated in France in 2013, known for its unique, peer-to-peer learning approach. The Piscine (French for "swimming pool") is an intensive 4-week bootcamp where students are immersed in the basics of programming and problem-solving. It serves as an introduction to the school’s curriculum, focusing on practical coding exercises that help build strong foundations in programming.
+
+During the Piscine:
+
+-   I achieved **Level 10**, surpassing many of the program's milestones.
+-   Most of my projects were completed with a **100% score**, demonstrating precision and thorough understanding.
+-   The few minor issues in some exercises are easily fixable, and they serve as a reminder of how learning is an ongoing process.
+
+The Piscine helped me hone my skills in **C programming**, while also reinforcing my problem-solving abilities and solidifying my passion for tackling complex challenges.
+
+This experience isn’t just a highlight of my journey but a testament to my dedication to learning and growth.
