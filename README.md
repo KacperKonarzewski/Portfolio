@@ -32,7 +32,7 @@ This experience isn’t just a highlight of my journey but a testament to my ded
 
 ![Alt text](/Piscine/MyPiscineAccount.png?raw=true "Piscine Level")
 
-**BSQ** is scored at 0%, but before the end we actually managed to do it fully, sadly norminette destroyed us because of max 25 lines per function, an in the last 10 minutes we didn't manage to fix it and the code broke a little.
+**BSQ** is scored at 0%, but before the end we actually managed to do it fully, sadly norminette destroyed us because of max 25 lines per function, and in the last 10 minutes we didn't manage to fix it and the code broke a little.
 
 ![Alt text](/Piscine/PiscineProjects.png?raw=true "Piscine Level")
 
