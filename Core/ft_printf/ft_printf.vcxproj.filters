@@ -1,0 +1,135 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Pliki źródłowe">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Pliki nagłówkowe">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Pliki zasobów">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Pliki źródłowe\Libft">
+      <UniqueIdentifier>{19849a32-26a2-432f-ac41-f3ac7d7b0f9d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Pliki źródłowe\ft_printf">
+      <UniqueIdentifier>{f7d388a4-2ff9-4ba9-a120-a46562dde4dc}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.c">
+      <Filter>Pliki źródłowe</Filter>
+    </ClCompile>
+    <ClCompile Include="ft_atoi.c">
+      <Filter>Pliki źródłowe\Libft</Filter>
+    </ClCompile>
+    <ClCompile Include="ft_bzero.c">
+      <Filter>Pliki źródłowe\Libft</Filter>
+    </ClCompile>
+    <ClCompile Include="ft_calloc.c">
+      <Filter>Pliki źródłowe\Libft</Filter>
+    </ClCompile>
+    <ClCompile Include="ft_isalnum.c">
+      <Filter>Pliki źródłowe\Libft</Filter>
+    </ClCompile>
+    <ClCompile Include="ft_isalpha.c">
+      <Filter>Pliki źródłowe\Libft</Filter>
+    </ClCompile>
+    <ClCompile Include="ft_isascii.c">
+      <Filter>Pliki źródłowe\Libft</Filter>
+    </ClCompile>
+    <ClCompile Include="ft_isdigit.c">
+      <Filter>Pliki źródłowe\Libft</Filter>
+    </ClCompile>
+    <ClCompile Include="ft_isprint.c">
+      <Filter>Pliki źródłowe\Libft</Filter>
+    </ClCompile>
+    <ClCompile Include="ft_itoa.c">
+      <Filter>Pliki źródłowe\Libft</Filter>
+    </ClCompile>
+    <ClCompile Include="ft_memchr.c">
+      <Filter>Pliki źródłowe\Libft</Filter>
+    </ClCompile>
+    <ClCompile Include="ft_memcmp.c">
+      <Filter>Pliki źródłowe\Libft</Filter>
+    </ClCompile>
+    <ClCompile Include="ft_memcpy.c">
+      <Filter>Pliki źródłowe\Libft</Filter>
+    </ClCompile>
+    <ClCompile Include="ft_memmove.c">
+      <Filter>Pliki źródłowe\Libft</Filter>
+    </ClCompile>
+    <ClCompile Include="ft_memset.c">
+      <Filter>Pliki źródłowe\Libft</Filter>
+    </ClCompile>
+    <ClCompile Include="ft_split.c">
+      <Filter>Pliki źródłowe\Libft</Filter>
+    </ClCompile>
+    <ClCompile Include="ft_strchr.c">
+      <Filter>Pliki źródłowe\Libft</Filter>
+    </ClCompile>
+    <ClCompile Include="ft_strdup.c">
+      <Filter>Pliki źródłowe\Libft</Filter>
+    </ClCompile>
+    <ClCompile Include="ft_striteri.c">
+      <Filter>Pliki źródłowe\Libft</Filter>
+    </ClCompile>
+    <ClCompile Include="ft_strjoin.c">
+      <Filter>Pliki źródłowe\Libft</Filter>
+    </ClCompile>
+    <ClCompile Include="ft_strlcat.c">
+      <Filter>Pliki źródłowe\Libft</Filter>
+    </ClCompile>
+    <ClCompile Include="ft_strlcpy.c">
+      <Filter>Pliki źródłowe\Libft</Filter>
+    </ClCompile>
+    <ClCompile Include="ft_strlen.c">
+      <Filter>Pliki źródłowe\Libft</Filter>
+    </ClCompile>
+    <ClCompile Include="ft_strmapi.c">
+      <Filter>Pliki źródłowe\Libft</Filter>
+    </ClCompile>
+    <ClCompile Include="ft_strncmp.c">
+      <Filter>Pliki źródłowe\Libft</Filter>
+    </ClCompile>
+    <ClCompile Include="ft_strnstr.c">
+      <Filter>Pliki źródłowe\Libft</Filter>
+    </ClCompile>
+    <ClCompile Include="ft_strrchr.c">
+      <Filter>Pliki źródłowe\Libft</Filter>
+    </ClCompile>
+    <ClCompile Include="ft_strtrim.c">
+      <Filter>Pliki źródłowe\Libft</Filter>
+    </ClCompile>
+    <ClCompile Include="ft_substr.c">
+      <Filter>Pliki źródłowe\Libft</Filter>
+    </ClCompile>
+    <ClCompile Include="ft_tolower.c">
+      <Filter>Pliki źródłowe\Libft</Filter>
+    </ClCompile>
+    <ClCompile Include="ft_toupper.c">
+      <Filter>Pliki źródłowe\Libft</Filter>
+    </ClCompile>
+    <ClCompile Include="ft_printf.c">
+      <Filter>Pliki źródłowe</Filter>
+    </ClCompile>
+    <ClCompile Include="ft_lstnew.c">
+      <Filter>Pliki źródłowe</Filter>
+    </ClCompile>
+    <ClCompile Include="get_flag_length.c">
+      <Filter>Pliki źródłowe</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="libft.h">
+      <Filter>Pliki nagłówkowe</Filter>
+    </ClInclude>
+    <ClInclude Include="ft_printf.h">
+      <Filter>Pliki nagłówkowe</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

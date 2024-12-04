@@ -13,7 +13,14 @@
 #ifndef LIBFT_H
 # define LIBFT_H
 # include <stdlib.h>
-# include <io.h>
+# include <stdio.h>
+
+typedef struct	s_list
+{
+	char* content;
+	struct s_list* next;
+}	t_list;
+
 
 int		ft_atoi(const char *str);
 void	ft_bzero(void *s, size_t n);
