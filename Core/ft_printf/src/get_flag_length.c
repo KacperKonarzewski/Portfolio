@@ -3,14 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   get_flag_length.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/04 21:02:10 by kkonarze          #+#    #+#             */
-/*   Updated: 2024/12/05 13:56:18 by marvin           ###   ########.fr       */
+/*   Updated: 2024/12/09 23:13:23 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/ft_printf.h"
+#include "ft_printf.h"
+#include "libft.h"
 
 int	find_in_set(char c, const char *charset)
 {
@@ -34,16 +35,22 @@ static int	get_rest(const char *str, int i)
 		total++;
 	}
 	if (str[i] == '.')
+	{
+		i++;
 		total++;
-	while (ft_isdigit(str[++i]))
+	}
+	while (ft_isdigit(str[i]))
+	{
+		i++;
 		total++;
+	}
 	if (!find_in_set(str[i], "cspdiuxX"))
 		return (-1);
 	total++;
 	return (total);
 }
 
-static int	get_modi(const char *str, int per_index)
+int	get_modi(const char *str, int per_index)
 {
 	char	*currently_found;
 	int		total;
@@ -57,7 +64,7 @@ static int	get_modi(const char *str, int per_index)
 	ft_bzero((void *)currently_found, 6 * sizeof(char));
 	while (str[++i] && find_in_set(str[i], "# -+0") && i - 1 - per_index < 5)
 	{
-		if (str[i] == '0' && find_in_set(str[i], currently_found))
+		if (str[i] == '0' && find_in_set('0', currently_found))
 			break ;
 		else if (find_in_set(str[i], currently_found))
 		{

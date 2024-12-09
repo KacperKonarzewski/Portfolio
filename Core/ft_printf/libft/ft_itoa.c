@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   ft_itoa.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/02 15:02:29 by kkonarze          #+#    #+#             */
-/*   Updated: 2024/12/05 08:49:45 by marvin           ###   ########.fr       */
+/*   Updated: 2024/12/06 13:13:35 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/libft.h"
+#include "libft.h"
 
-static int	ft_abs(int n)
+int	ft_abs(int n)
 {
 	return (n * ((n > 0) - (n < 0)));
 }
@@ -22,11 +22,9 @@ char	*ft_itoa(int n)
 	char	*str;
 	int		digits;
 	int		cpy;
-	int		i;
 
 	cpy = n;
 	digits = 0;
-	i = 0;
 	while (cpy / 10 != 0)
 	{
 		digits += 1;

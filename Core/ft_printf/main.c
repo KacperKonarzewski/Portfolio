@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/12/04 21:12:40 by kkonarze          #+#    #+#             */
-/*   Updated: 2024/12/05 14:13:26 by marvin           ###   ########.fr       */
+/*   Created: 2024/12/09 21:19:53 by kkonarze          #+#    #+#             */
+/*   Updated: 2024/12/09 21:31:49 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,6 @@
 
 int	main(void)
 {
-	ft_printf("dddszadsad%0-1203.9daisdjasfn");
-    return 0;
+	printf("%d", ft_printf("%c", 'h'));
+	return (0);
 }

@@ -3,16 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   validate_flag.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/04 23:14:44 by kkonarze          #+#    #+#             */
-/*   Updated: 2024/12/05 14:38:10 by marvin           ###   ########.fr       */
+/*   Updated: 2024/12/09 17:51:12 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/ft_printf.h"
+#include "ft_printf.h"
+#include "libft.h"
 
-static int	find_zero_context(const char *str)
+int	find_zero_context(const char *str, int con)
 {
 	int	i;
 	int	found;
@@ -26,9 +27,13 @@ static int	find_zero_context(const char *str)
 		else if (ft_isdigit(str[i]) > '0')
 			return (0);
 		else if (str[i] == '0')
+		{
+			if (con)
+				return (1);
 			found = 1;
+		}
 	}
-	return (1);
+	return (found);
 }
 
 static void	find_modi(const char *str, size_t len, char *cur)
@@ -47,13 +52,15 @@ static void	find_modi(const char *str, size_t len, char *cur)
 		cur[i++] = '+';
 	if (find_in_set('-', str) != 0)
 		cur[i++] = '-';
-	if (find_zero_context(str) && find_in_set('-', str) == 0
-		&& (str[len - 1] == 'i' || str[len - 1] == 'd' || str[len - 1] == 'u'
+	if (find_zero_context(str, 0) && find_in_set('-', str) == 0
+		&& find_in_set('.', str) == 0 && (str[len - 1] == 'i'
+			|| str[len - 1] == 'd' || str[len - 1] == 'u'
 			|| str[len - 1] == 'x' || str[len - 1] == 'X'))
 		cur[i++] = '0';
 }
 
-static void	validate_rest(const char *str, int *i, size_t len)
+static void	validate_rest(const char *str, int *i, size_t len,
+							int found)
 {
 	int	skip;
 
@@ -76,13 +83,15 @@ static void	validate_rest(const char *str, int *i, size_t len)
 			(*i)++;
 		}
 	}
+	(*i)++;
+	while (found--)
+		(*i)--;
 }
 
 char	*validate_flag(char *str, size_t length)
 {
 	int		i;
 	int		j;
-	size_t	len;
 	char	currently_found[5];
 	char	*new_flag;
 
@@ -91,16 +100,18 @@ char	*validate_flag(char *str, size_t length)
 	find_modi(str, length, currently_found);
 	while (currently_found[i])
 		i++;
-	validate_rest(str, &i, length);
+	validate_rest(str, &i, length, ft_strlen(currently_found));
 	new_flag = (char *)malloc((i + 1) * sizeof(char));
 	if (!new_flag)
+	{
+		free(str);
 		return (NULL);
+	}
 	j = -1;
 	while (currently_found[++j])
 		new_flag[j] = currently_found[j];
-	len = ft_strlen(str);
-	while (str[len - --i])
-		new_flag[j++] = str[len - i];
+	while (str[length - i])
+		new_flag[j++] = str[length - i--];
 	new_flag[j] = 0;
 	free(str);
 	return (new_flag);
