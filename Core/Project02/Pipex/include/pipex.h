@@ -6,7 +6,7 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/31 01:49:52 by kkonarze          #+#    #+#             */
-/*   Updated: 2024/12/31 02:18:43 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/01/04 22:30:19 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,5 +17,10 @@
 # include <fcntl.h>
 # include <stdio.h>
 # include <sys/wait.h>
+
+void	error(int i, char *str);
+void	use_cmd(char *cmd, char **envp);
+int		get_input(char **line);
+int		file_opener(char *argv, int i);
 
 #endif
