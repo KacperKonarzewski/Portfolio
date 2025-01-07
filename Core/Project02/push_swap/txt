@@ -1,0 +1,362 @@
+Why I get
+-----------------------
+1   7  
+12  4  
+13  2  
+    3  
+    6  
+    15 
+    10 
+-   -
+A   B
+while it should be:
+-----------------------
+1   15  
+12  10 
+13  7 
+    6  
+    4  
+    3  
+    2  
+-   -
+A   B
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   pushswap.h                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/01/02 11:56:25 by kkonarze          #+#    #+#             */
+/*   Updated: 2025/01/07 20:19:02 by kkonarze         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#ifndef PUSHSWAP_H
+
+# define PUSHSWAP_H
+
+# include "libft.h"
+
+typedef struct s_stacks
+{
+	size_t	size_a;
+	size_t	size_b;
+	int		*stack_a;
+	int		*stack_b;
+	int		*cost;
+}		t_stacks;
+
+void	push_swap(t_stacks *stacks);
+void	sa(t_stacks *stacks);
+void	sb(t_stacks *stacks);
+void	ss(t_stacks *stacks);
+void	pa(t_stacks *stacks);
+void	pb(t_stacks *stacks);
+void	ra(t_stacks *stacks);
+void	rb(t_stacks *stacks);
+void	rr(t_stacks *stacks);
+void	rra(t_stacks *stacks);
+void	rrb(t_stacks *stacks);
+void	rrr(t_stacks *stacks);
+
+#endif
+
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/01/02 11:52:59 by kkonarze          #+#    #+#             */
+/*   Updated: 2025/01/07 21:16:10 by kkonarze         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "pushswap.h"
+
+void	print_stacks(t_stacks *stacks)
+{
+	size_t		i;
+
+	i = 0;
+	ft_printf("-----------------------\n");
+	while (i < stacks->size_a || i < stacks->size_b)
+	{
+		if (i < stacks->size_a)
+			ft_printf("%-3d ", stacks->stack_a[i]);
+		else
+			ft_printf("    ");
+		if (i < stacks->size_b)
+			ft_printf("%-3d\n", stacks->stack_b[i]);
+		else
+			ft_printf("\n");
+		i++;
+	}
+	ft_printf("-   -\nA   B\n");
+}
+
+t_stacks	init_stacks(int argc, char **argv)
+{
+	t_stacks	stacks;
+
+	stacks.stack_a = malloc((argc - 1) * sizeof(int));
+	stacks.stack_b = malloc((argc - 1) * sizeof(int));
+	stacks.cost = malloc((argc - 1) * sizeof(int));
+	if (!stacks.stack_a || !stacks.stack_b || !stacks.cost)
+	{
+		ft_printf("Malloc problem.");
+		exit(EXIT_SUCCESS);
+	}
+	stacks.size_a = argc - 1;
+	stacks.size_b = 0;
+	while (--argc >= 1)
+	{
+		stacks.stack_a[argc - 1] = ft_atoi(argv[argc]);
+	}
+	return (stacks);
+}
+
+int	main(int argc, char **argv)
+{
+	t_stacks	stacks;
+
+	if (argc == 1)
+		return (0);
+	stacks = init_stacks(argc, argv);
+	push_swap(&stacks);
+	print_stacks(&stacks);
+	return (0);
+}
+
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   cheapest.c                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/01/07 20:16:23 by kkonarze          #+#    #+#             */
+/*   Updated: 2025/01/07 21:17:11 by kkonarze         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "pushswap.h"
+
+typedef struct s_cost_info
+{
+	size_t	cost;
+	int		scenario;
+}	t_cost_info;
+
+/*
+** get_target_b_index:
+**   Return the index in stack B where 'number' should be placed
+**   to keep B sorted in DESCENDING order (largest at top).
+**   If B is empty, return 0.
+**   If stack_b[i] < number, we insert above it (i.e. return i).
+*/
+size_t	get_target_b_index(t_stacks *stacks, int number)
+{
+	size_t	i;
+
+	if (stacks->size_b == 0)
+		return (0);
+	i = 0;
+	while (i < stacks->size_b)
+	{
+		if (stacks->stack_b[i] < number)
+			return (i);
+		i++;
+	}
+	return (stacks->size_b);
+}
+
+/*
+** compute_cost:
+**   Calculate how many total rotations are needed to move
+**   the element at 'posA' in Stack A into the correct position
+**   'posB' in Stack B, considering four scenarios:
+**     1) both forward
+**     2) both reverse
+**     3) A forward + B reverse
+**     4) A reverse + B forward
+**
+**   We store both the minimal cost and the winning scenario ID (1-4).
+*/
+static t_cost_info compute_cost(t_stacks *stacks, size_t posA, size_t posB)
+{
+	t_cost_info	c;
+	size_t		sizeA;
+	size_t		sizeB;
+	size_t		raA;
+	size_t		rraA;
+	size_t		rbB;
+	size_t		rrbB;
+
+	sizeA = stacks->size_a;
+	sizeB = stacks->size_b;
+	raA  = posA;            // forward rotations for A
+	rraA = sizeA - posA;    // reverse rotations for A
+	rbB  = posB;            // forward rotations for B
+	rrbB = sizeB - posB;    // reverse rotations for B
+
+	/* Four scenarios (in lines with your code’s logic): */
+	/* 1) Both forward */
+	size_t forward_cost = (raA > rbB) ? raA : rbB;  
+	/* 2) Both reverse */
+	size_t reverse_cost = (rraA > rrbB) ? rraA : rrbB;  
+	/* 3) Mixed: A forward, B reverse */
+	size_t mixed1_cost  = raA + rrbB;                
+	/* 4) Mixed: A reverse, B forward */
+	size_t mixed2_cost  = rraA + rbB;
+
+	/* Find minimal and store scenario */
+	c.cost = forward_cost;
+	c.scenario = 1;
+	if (reverse_cost < c.cost)
+	{
+		c.cost = reverse_cost;
+		c.scenario = 2;
+	}
+	if (mixed1_cost < c.cost)
+	{
+		c.cost = mixed1_cost;
+		c.scenario = 3;
+	}
+	if (mixed2_cost < c.cost)
+	{
+		c.cost = mixed2_cost;
+		c.scenario = 4;
+	}
+	return (c);
+}
+
+/*
+** find_cheapest_element_in_a:
+**   Loops over all elements in Stack A, calculates cost with compute_cost(),
+**   picks the minimal cost, and returns the index of that element.
+**   Also returns the chosen scenario (1-4) via an int* pointer.
+*/
+size_t	find_cheapest_element_in_a(t_stacks *stacks, int *best_scenario)
+{
+	size_t		i;
+	size_t		best_index;
+	size_t		best_cost;
+	int			best_sc;
+
+	best_cost = (size_t)-1; // A large number
+	best_index = 0;
+	best_sc = 1;
+	i = 0;
+	while (i < stacks->size_a)
+	{
+		int			number = stacks->stack_a[i];
+		size_t		posB   = get_target_b_index(stacks, number);
+		t_cost_info cost_i = compute_cost(stacks, i, posB);
+
+		if (cost_i.cost < best_cost)
+		{
+			best_cost = cost_i.cost;
+			best_index = i;
+			best_sc = cost_i.scenario;
+		}
+		i++;
+	}
+	*best_scenario = best_sc;
+	return (best_index);
+}
+
+/* 
+** ========== Rotation Helpers for Each Scenario ==========
+** We'll define smaller static functions to handle the 
+** rotations, so rotate_stacks_for_position() can pick 
+** the correct one.
+*/
+static void rotate_both_forward(t_stacks *stacks, size_t raA, size_t rbB)
+{
+	while (raA && rbB)
+	{
+		rr(stacks);
+		raA--;
+		rbB--;
+	}
+	while (raA--)
+		ra(stacks);
+	while (rbB--)
+		rb(stacks);
+}
+
+static void rotate_both_reverse(t_stacks *stacks, size_t rraA, size_t rrbB)
+{
+	while (rraA && rrbB)
+	{
+		rrr(stacks);
+		rraA--;
+		rrbB--;
+	}
+	while (rraA--)
+		rra(stacks);
+	while (rrbB--)
+		rrb(stacks);
+}
+
+static void rotate_stacks_for_position(t_stacks *stacks, 
+									   size_t posA, size_t posB, int scenario)
+{
+	size_t	sizeA = stacks->size_a;
+	size_t	sizeB = stacks->size_b;
+	size_t	raA = posA;
+	size_t	rraA = sizeA - posA;
+	size_t	rbB = posB;
+	size_t	rrbB = sizeB - posB;
+
+	if (scenario == 1)
+	{
+		rotate_both_forward(stacks, raA, rbB);
+	}
+	else if (scenario == 2)
+	{
+		rotate_both_reverse(stacks, rraA, rrbB);
+	}
+	else if (scenario == 3)
+	{
+		while (raA--)
+			ra(stacks);
+		while (rrbB--)
+			rrb(stacks);
+	}
+	else
+	{
+		while (rraA--)
+			rra(stacks);
+		while (rbB--)
+			rb(stacks);
+	}
+}
+
+void	move_cheapest_element(t_stacks *stacks)
+{
+	int		best_scenario;
+	size_t	best_i;
+	int		number;
+	size_t	posB;
+
+	best_i = find_cheapest_element_in_a(stacks, &best_scenario);
+	number = stacks->stack_a[best_i];
+	posB   = get_target_b_index(stacks, number);
+
+	rotate_stacks_for_position(stacks, best_i, posB, best_scenario);
+
+	pb(stacks);
+}
+
+void	push_swap(t_stacks *stacks)
+{
+	pb(stacks);
+	pb(stacks);
+	while (stacks->size_a > 3)
+		move_cheapest_element(stacks);
+}
+
