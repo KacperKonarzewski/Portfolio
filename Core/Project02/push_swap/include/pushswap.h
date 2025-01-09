@@ -6,7 +6,7 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/02 11:56:25 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/01/07 20:19:02 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/01/09 11:43:40 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,9 +20,10 @@ typedef struct s_stacks
 {
 	size_t	size_a;
 	size_t	size_b;
-	int		*stack_a;
-	int		*stack_b;
+	int		*st_a;
+	int		*st_b;
 	int		*cost;
+	size_t	target_b;
 }		t_stacks;
 
 void	push_swap(t_stacks *stacks);
