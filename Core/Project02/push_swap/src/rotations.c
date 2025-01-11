@@ -6,13 +6,13 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/05 19:31:49 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/01/09 14:29:36 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/01/10 19:46:35 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pushswap.h"
 
-void	ra(t_stacks *stacks)
+void	ra(t_stacks *stacks, int rr)
 {
 	size_t	i;
 	int		tmp;
@@ -24,9 +24,11 @@ void	ra(t_stacks *stacks)
 	while (++i < stacks->size_a - 1)
 		stacks->st_a[i] = stacks->st_a[i + 1];
 	stacks->st_a[i] = tmp;
+	if (!rr)
+		ft_printf("ra\n");
 }
 
-void	rb(t_stacks *stacks)
+void	rb(t_stacks *stacks, int rr)
 {
 	size_t	i;
 	int		tmp;
@@ -38,10 +40,13 @@ void	rb(t_stacks *stacks)
 	while (++i < stacks->size_b - 1)
 		stacks->st_b[i] = stacks->st_b[i + 1];
 	stacks->st_b[i] = tmp;
+	if (!rr)
+		ft_printf("rb\n");
 }
 
 void	rr(t_stacks *stacks)
 {
-	ra(stacks);
-	rb(stacks);
+	ra(stacks, 1);
+	rb(stacks, 1);
+	ft_printf("rr\n");
 }

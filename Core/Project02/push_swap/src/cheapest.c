@@ -6,86 +6,120 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/07 22:03:45 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/01/09 14:31:18 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/01/11 19:56:46 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pushswap.h"
+#include <stdio.h>
 
-//int	calc_cost(t_stacks *s, size_t index)
-//{
-//	int	moves_a;
-//	int	moves_b;
-
-//	moves_a = index % (s->size_a / 2) * (1 - (index < s->size_a / 2) * 2);
-//	moves_b = 0;
-//}
-
-int	find_lowest(t_stacks *s)
+int	ft_abs(int d)
 {
-	size_t	i;
-	int		tmp;
-
-	i = 0;
-	tmp = -1;
-	while (i < s->size_b)
-		if (tmp > s->st_b[i++] || tmp == -1)
-			tmp = s->st_b[i - 1];
-	return (tmp);
+	return (d * ((d > 0) - (d < 0)));
 }
 
-int	find_highest(t_stacks *s)
+void	calc_cost(t_stacks *s, size_t index)
 {
-	size_t	i;
-	int		tmp;
+	int	mv_a;
+	int	mv_b;
+	int	cost;
 
-	i = 0;
-	tmp = -1;
-	while (i < s->size_b)
-		if (tmp < s->st_b[i++] || tmp == -1)
-			tmp = s->st_b[i - 1];
-	return (tmp);
-}
-
-void	find_target_b(t_stacks *s, size_t index)
-{
-	size_t	i;
-	int		lowest;
-	int		highest;
-
-	i = 0;
-	lowest = find_lowest(s);
-	highest = find_highest(s);
-	while (i < s->size_b - 1 && s->st_b[i] < s->st_a[index]
-		&& (s->st_b[i] > s->st_b[i + 1] || s->st_a[index] < highest))
-		i++;
-	if (i + 1 == s->size_b && ((s->st_b[i] < s->st_a[index] && s->st_b[0] > \
-	s->st_b[i]) || (s->st_b[i] > s->st_a[index] && s->st_b[0] < s->st_b[i])))
-		i = 0;
-	else if (s->st_b[i] < s->st_b[i + 1] && s->st_a[index] > highest)
-		i++;
+	if (index < (s->size_a + 1) / 2)
+		mv_a = index;
 	else
-	{
-		while (i < s->size_b - 1 && s->st_a[index] < s->st_b[i]
-			&& (s->st_b[i] > s->st_b[i + 1] || s->st_a[index] > lowest))
-			i++;
-		if (i + 1 == s->size_b && s->st_a[index] < s->st_b[i] && \
-			s->st_b[i - 1] > s->st_b[i])
-			i = 0;
-	}
-	s->target_b = i;
+		mv_a = (s->size_a - index) * -1;
+	if (s->target_b[index] < (s->size_b + 1) / 2)
+		mv_b = s->target_b[index];
+	else
+		mv_b = (s->size_b - s->target_b[index]) * -1;
+	if (mv_a <= 0 && mv_b <= 0)
+		cost = ft_abs((mv_a <= mv_b) * mv_a + (mv_b < mv_a) * mv_b);
+	else if (mv_a >= 0 && mv_b >= 0)
+		cost = (mv_a >= mv_b) * mv_a + (mv_b > mv_a) * mv_b;
+	else if (mv_a > 0)
+		cost = mv_a - mv_b;
+	else
+		cost = mv_b - mv_a;
+	cost++;
+	s->cost[index] = cost;
+}
+
+void	rotate(t_stacks *s)
+{
+	int	mv_b;
+	int	mv_a;
+
+	if (s->target_a < (s->size_a + 1) / 2)
+		mv_a = s->target_a;
+	else
+		mv_a = (s->size_a - s->target_a) * -1;
+	if (s->target_b[s->target_a] < (s->size_b + 1) / 2)
+		mv_b = s->target_b[s->target_a];
+	else
+		mv_b = (s->size_b - s->target_b[s->target_a]) * -1;
+	rotate_both(s, &mv_a, &mv_b);
+	if (mv_a > 0)
+		while (mv_a--)
+			ra(s, 0);
+	else
+		while (mv_a++)
+			rra(s, 0);
+	if (mv_b > 0)
+		while (mv_b--)
+			rb(s, 0);
+	else
+		while (mv_b++)
+			rrb(s, 0);
 }
 
 void	move_cheapest_element(t_stacks *stacks)
 {
-	find_target_b(stacks, 0);
-	ft_printf("%d\n", stacks->st_b[stacks->target_b]);
+	ssize_t	i;
+	int		tmp;
+
+	i = 0;
+	while ((size_t)i < stacks->size_a)
+	{
+		find_target_b(stacks, i);
+		calc_cost(stacks, i);
+		if (stacks->cost[i++] <= 2)
+			break ;
+	}
+	tmp = stacks->cost[0];
+	stacks->target_a = 0;
+	while (--i >= 0)
+	{
+		if (tmp >= stacks->cost[i])
+		{
+			stacks->target_a = i;
+			tmp = stacks->cost[i];
+		}
+	}
+	rotate(stacks);
+	pb(stacks);
 }
 
-void	push_swap(t_stacks *stacks)
+size_t	find_target_index(int *stack, size_t size, int value)
 {
-	while (stacks->size_a > 1)
-		pb(stacks);
-	//while (stacks->size_a > 3)
-		move_cheapest_element(stacks);
+	size_t	prev;
+	size_t	min_index;
+	size_t	i;
+
+	i = 0;
+	while (i < size)
+	{
+		prev = (i - 1 + size) % size;
+		if (stack[i] > value && stack[prev] < value)
+			return (i);
+		i++;
+	}
+	min_index = 0;
+	i = 1;
+	while (i < size)
+	{
+		if (stack[i] < stack[min_index])
+			min_index = i;
+		i++;
+	}
+	return (min_index);
 }
