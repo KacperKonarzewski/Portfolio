@@ -6,7 +6,7 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/05 19:30:59 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/01/11 17:52:31 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/01/12 21:55:21 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,14 +38,15 @@ void	sb(t_stacks *stacks, int ss)
 		ft_printf("sb\n");
 }
 
-void	ss(t_stacks *stacks)
+void	ss(t_stacks *stacks, int type)
 {
 	sa(stacks, 1);
 	sb(stacks, 1);
-	ft_printf("ss\n");
+	if (type != 2)
+		ft_printf("ss\n");
 }
 
-void	pa(t_stacks *stacks)
+void	pa(t_stacks *stacks, int type)
 {
 	size_t	i;
 
@@ -66,10 +67,11 @@ void	pa(t_stacks *stacks)
 		i++;
 	}
 	stacks->size_b--;
-	ft_printf("pa\n");
+	if (type != 2)
+		ft_printf("pa\n");
 }
 
-void	pb(t_stacks *stacks)
+void	pb(t_stacks *stacks, int type)
 {
 	size_t	i;
 
@@ -90,5 +92,6 @@ void	pb(t_stacks *stacks)
 		i++;
 	}
 	stacks->size_a--;
-	ft_printf("pb\n");
+	if (type != 2)
+		ft_printf("pb\n");
 }

@@ -6,7 +6,7 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/05 19:31:49 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/01/10 19:46:35 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/01/12 21:56:19 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,9 +44,10 @@ void	rb(t_stacks *stacks, int rr)
 		ft_printf("rb\n");
 }
 
-void	rr(t_stacks *stacks)
+void	rr(t_stacks *stacks, int type)
 {
 	ra(stacks, 1);
 	rb(stacks, 1);
-	ft_printf("rr\n");
+	if (type != 2)
+		ft_printf("rr\n");
 }

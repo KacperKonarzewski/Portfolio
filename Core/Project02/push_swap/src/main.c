@@ -6,7 +6,7 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/02 11:52:59 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/01/11 21:38:39 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/01/13 14:17:28 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,10 +36,16 @@ void	rotate_to_lowest(t_stacks *s)
 			rra(s, 0);
 }
 
-t_stacks	init_stacks(int argc, char **argv)
+t_stacks	init_stacks(int argc, char **argv, int type)
 {
 	t_stacks	stacks;
 
+	if (type)
+	{
+		stacks = init_stacks2(argv);
+		check_if_dup(&stacks);
+		return (stacks);
+	}
 	stacks.st_a = malloc((argc - 1) * sizeof(int));
 	stacks.st_b = malloc((argc - 1) * sizeof(int));
 	stacks.cost = malloc((argc - 1) * sizeof(int));
@@ -52,7 +58,7 @@ t_stacks	init_stacks(int argc, char **argv)
 	stacks.size_a = argc - 1;
 	stacks.size_b = 0;
 	while (--argc >= 1)
-		stacks.st_a[argc - 1] = ps_atoi(argv[argc], &stacks);
+		stacks.st_a[argc - 1] = ps_atoi(argv[argc], &stacks, NULL);
 	check_if_dup(&stacks);
 	return (stacks);
 }
@@ -69,8 +75,8 @@ void	push_swap(t_stacks *s)
 {
 	size_t	target_index;
 
-	pb(s);
-	pb(s);
+	pb(s, 1);
+	pb(s, 1);
 	while (s->size_a > 3)
 		move_cheapest_element(s);
 	sort_three(s);
@@ -86,7 +92,7 @@ void	push_swap(t_stacks *s)
 			while (target_index-- > 0)
 				rra(s, 0);
 		}
-		pa(s);
+		pa(s, 1);
 	}
 	rotate_to_lowest(s);
 }
@@ -98,14 +104,13 @@ int	main(int argc, char **argv)
 	size_t		i;
 
 	i = 1;
-	sorted = 0;
 	if (argc == 1)
-		throw_error((void *)0);
-	stacks = init_stacks(argc, argv);
-	while (i < stacks.size_a && stacks.st_a[i] > stacks.st_a[i - 1])
-		i++;
-	if (i == stacks.size_a)
-		sorted = 1;
+		return (0);
+	if (argc == 2)
+		stacks = init_stacks(argc, argv, 1);
+	else
+		stacks = init_stacks(argc, argv, 0);
+	sorted = check_if_sorted(&stacks);
 	if (!sorted)
 	{
 		if (stacks.size_a > 3)

@@ -6,7 +6,7 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/30 13:36:10 by kkonarze          #+#    #+#             */
-/*   Updated: 2024/12/30 17:39:41 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/01/12 23:48:52 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,5 +104,6 @@ int		ft_putnbr_base(unsigned int nbr, char *base);
 int		ft_putptr(uintptr_t nbr);
 int		get_len(uintptr_t nbr, int nbr2, int div);
 int		print_width(ssize_t width, int type);
+int		get_standard_input(char **line);
 
 #endif

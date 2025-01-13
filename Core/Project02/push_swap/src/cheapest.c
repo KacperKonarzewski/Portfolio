@@ -6,7 +6,7 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/07 22:03:45 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/01/11 19:56:46 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/01/12 22:09:26 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,7 +96,7 @@ void	move_cheapest_element(t_stacks *stacks)
 		}
 	}
 	rotate(stacks);
-	pb(stacks);
+	pb(stacks, 1);
 }
 
 size_t	find_target_index(int *stack, size_t size, int value)

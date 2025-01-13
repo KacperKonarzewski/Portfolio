@@ -6,7 +6,7 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 18:39:56 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/01/11 20:16:12 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/01/12 22:09:36 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,7 +86,7 @@ void	rotate_both(t_stacks *s, int *mv_a, int *mv_b)
 	{
 		while (*mv_b && *mv_a)
 		{
-			rrr(s);
+			rrr(s, 1);
 			(*mv_a)++;
 			(*mv_b)++;
 		}
@@ -95,7 +95,7 @@ void	rotate_both(t_stacks *s, int *mv_a, int *mv_b)
 	{
 		while (*mv_a && *mv_b)
 		{
-			rr(s);
+			rr(s, 1);
 			(*mv_b)--;
 			(*mv_a)--;
 		}

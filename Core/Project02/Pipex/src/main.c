@@ -6,7 +6,7 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/31 01:51:53 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/01/04 23:47:22 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/01/05 14:13:41 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,7 +72,7 @@ int	main(int argc, char **argv, char **envp)
 	int		fileout;
 	int		filein;
 
-	if (argc < 4)
+	if (argc < 5)
 		error(0, "Error, wrong input!\nCorrect input: \
 ./pipex infile cmd1 cmd2 ... cmdn outfile");
 	if (ft_strncmp(argv[1], "here_doc", 8) == 0)

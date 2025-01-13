@@ -1,0 +1,12 @@
+{
+	"makefile.launchConfigurations": [
+		{
+			"cwd": "/nfs/homes/kkonarze/Core/Project02/push_swap",
+			"binaryPath": "/nfs/homes/kkonarze/Core/Project02/push_swap/push_swap",
+			"binaryArgs": []
+		}
+	],
+	"files.associations": {
+		"pushswap.h": "c"
+	}
+}

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_split.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kkonarze <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/02 11:50:54 by kkonarze          #+#    #+#             */
-/*   Updated: 2024/12/02 13:38:38 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/01/05 15:36:54 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,11 +40,8 @@ static void	put_values(char **strs, int maxi, const char *str, char c)
 		while (str[j] && str[j] == c)
 			j++;
 		length = 0;
-		while (str[j] && !(str[j] == c))
-		{
+		while (str[j] && !(str[j] == c) && ++j)
 			length++;
-			j++;
-		}
 		strs[i] = (char *)malloc(sizeof(char) * (length + 1));
 		k = 0;
 		while (length-- > 0)

@@ -1,6 +1,7 @@
 # Variables
 
 EXEC        = push_swap
+BEXEC		= checker
 SRC_DIR     = src/
 OBJ_DIR     = obj/
 LIBFT_DIR   = libft
@@ -19,9 +20,12 @@ CYAN        = \033[0;96m
 
 # Sources
 
-SRC_FILES   = main.c push_swaps.c reverse_rotations.c rotations.c cheapest.c cheapest_utils.c error_handling.c
+SRC_FILES   = main.c push_swaps.c reverse_rotations.c rotations.c cheapest.c cheapest_utils.c error_handling.c push_swap_utils.c
+SRCB_FILES	= checker.c push_swaps.c reverse_rotations.c rotations.c error_handling.c
 SRC         = $(addprefix $(SRC_DIR), $(SRC_FILES))
 OBJ         = $(addprefix $(OBJ_DIR), $(SRC_FILES:.c=.o))
+SRCB         = $(addprefix $(SRC_DIR), $(SRCB_FILES))
+OBJB         = $(addprefix $(OBJ_DIR), $(SRCB_FILES:.c=.o))
 
 ###
 
@@ -45,13 +49,18 @@ $(LIBFT):
 $(OBJF):
 		@mkdir -p $(OBJ_DIR)
 
+bonus:	$(LIBFT) $(OBJB)
+		@echo "$(YELLOW)Linking executable: $(BEXEC)$(DEF_COLOR)"
+		@$(CC) $(OBJB) $(LIBFT) -o $(BEXEC)
+		@echo "$(GREEN)Executable $(BEXEC) created!$(DEF_COLOR)"
+
 clean:
 		@$(RM) -rf $(OBJ_DIR)
 		@make clean -C $(LIBFT_DIR)
 		@echo "$(BLUE)Object files cleaned!$(DEF_COLOR)"
 
 fclean: clean
-		@$(RM) -f $(EXEC)
+		@$(RM) -f $(EXEC) $(BEXEC)
 		@make fclean -C $(LIBFT_DIR)
 		@echo "$(CYAN)Executable file cleaned!$(DEF_COLOR)"
 

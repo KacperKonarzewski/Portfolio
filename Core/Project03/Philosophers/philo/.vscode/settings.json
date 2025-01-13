@@ -1,0 +1,13 @@
+{
+	"makefile.launchConfigurations": [
+		{
+			"cwd": "/nfs/homes/kkonarze/Core/Project03/Philosophers",
+			"binaryPath": "/nfs/homes/kkonarze/Core/Project03/Philosophers/philo",
+			"binaryArgs": []
+		}
+	],
+	"files.associations": {
+		"philosophers.h": "c",
+		"types.h": "c"
+	}
+}
