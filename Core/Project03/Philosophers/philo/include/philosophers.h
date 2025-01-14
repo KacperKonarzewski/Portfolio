@@ -6,7 +6,7 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/02 11:56:25 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/01/13 20:48:34 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/01/14 13:24:59 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,25 +24,24 @@
 
 typedef struct s_philo
 {
+	pthread_t		thread;
 	unsigned int	id;
 	useconds_t		cur_status_time;
+	useconds_t		time_to_die;
+	useconds_t		time_to_eat;
+	useconds_t		time_to_sleep;
+	int				times_eaten;
+	int				max_eat;
 	int				status;
+	pthread_mutex_t	*r_fork;
+	pthread_mutex_t	*l_fork;
 }		t_philo;
 
 typedef struct s_table
 {
-	t_philo	*philos;
-	int		*forks;
+	int				died;
+	t_philo			*philos;
 }		t_table;
-
-typedef struct s_philo_data
-{
-	int			philos;
-	useconds_t	time_to_die;
-	useconds_t	time_to_eat;
-	useconds_t	time_to_sleep;
-	int			max_eat;
-}		t_philo_data;
 
 int	ft_atoi(const char *nptr);
 
