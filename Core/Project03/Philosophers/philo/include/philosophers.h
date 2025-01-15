@@ -6,7 +6,7 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/02 11:56:25 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/01/14 13:24:59 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/01/15 22:32:54 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,23 +25,32 @@
 typedef struct s_philo
 {
 	pthread_t		thread;
-	unsigned int	id;
-	useconds_t		cur_status_time;
-	useconds_t		time_to_die;
-	useconds_t		time_to_eat;
-	useconds_t		time_to_sleep;
-	int				times_eaten;
-	int				max_eat;
-	int				status;
+	int				id;
+	int				eating;
+	int				meals_eaten;
+	size_t			last_meal;
+	size_t			time_to_die;
+	size_t			time_to_eat;
+	size_t			time_to_sleep;
+	size_t			start_time;
+	int				num_of_philos;
+	int				num_times_to_eat;
+	int				*dead;
 	pthread_mutex_t	*r_fork;
 	pthread_mutex_t	*l_fork;
-}		t_philo;
-
-typedef struct s_table
+	pthread_mutex_t	*write_lock;
+	pthread_mutex_t	*dead_lock;
+	pthread_mutex_t	*meal_lock;
+}					t_philo;
+typedef struct s_program
 {
-	int				died;
+	int				dead_flag;
+	pthread_mutex_t	*forks;
+	pthread_mutex_t	dead_lock;
+	pthread_mutex_t	meal_lock;
+	pthread_mutex_t	write_lock;
 	t_philo			*philos;
-}		t_table;
+}					t_program;
 
 int	ft_atoi(const char *nptr);
 
