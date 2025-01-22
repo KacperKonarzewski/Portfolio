@@ -1,0 +1,9 @@
+{
+	"makefile.launchConfigurations": [
+		{
+			"cwd": "/nfs/homes/kkonarze/Core/Project03/Philosophers/philo_bonus",
+			"binaryPath": "/nfs/homes/kkonarze/Core/Project03/Philosophers/philo_bonus/philo_bonus",
+			"binaryArgs": []
+		}
+	]
+}

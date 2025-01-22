@@ -1,6 +1,6 @@
 # Variables
 
-EXEC        = philo
+EXEC        = philo_bonus
 SRC_DIR     = src/
 OBJ_DIR     = obj/
 CC          = cc
@@ -17,7 +17,7 @@ CYAN        = \033[0;96m
 
 # Sources
 
-SRC_FILES   = monitor.c philo_utils.c life.c init_philosophers.c main.c 
+SRC_FILES   = ft_actions.c ft_init.c ft_parsing.c main.c 
 SRC         = $(addprefix $(SRC_DIR), $(SRC_FILES))
 OBJ         = $(addprefix $(OBJ_DIR), $(SRC_FILES:.c=.o))
 

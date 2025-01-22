@@ -4,10 +4,17 @@
 			"cwd": "/nfs/homes/kkonarze/Core/Project03/Philosophers",
 			"binaryPath": "/nfs/homes/kkonarze/Core/Project03/Philosophers/philo",
 			"binaryArgs": []
+		},
+		{
+			"cwd": "/nfs/homes/kkonarze/Core/Project03/Philosophers/philo",
+			"binaryPath": "/nfs/homes/kkonarze/Core/Project03/Philosophers/philo/philo",
+			"binaryArgs": []
 		}
 	],
 	"files.associations": {
 		"philosophers.h": "c",
-		"types.h": "c"
+		"types.h": "c",
+		"pthread.h": "c",
+		"time.h": "c"
 	}
 }
