@@ -6,7 +6,7 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/20 01:50:52 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/01/21 22:29:38 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/01/23 14:40:59 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,65 +33,42 @@ int	philosopher_dead(t_philo *philo, size_t time_to_die)
 	return (0);
 }
 
-int	check_if_dead(t_philo *philos)
+void	*check_if_dead(void *ptr)
 {
-	int	i;
+	t_philo	*philo;
 
-	i = 0;
-	while (i < philos[0].data->philos)
+	philo = (t_philo *)ptr;
+	while (1)
 	{
-		if (philosopher_dead(&philos[i], philos[i].data->time_to_die))
+		sem_wait(philo->data->death);
+		if (get_current_time() - philo->times.last_meal > philo->times.die)
 		{
-			print_message("died", &philos[i], philos[i].id);
-			pthread_mutex_lock(&philos[0].data->dead_stop);
-			philos->data->dead_flag = 1;
-			pthread_mutex_unlock(&philos[0].data->dead_stop);
-			return (1);
+			//print_action(philo, RED"died"RESET);
+			sem_wait(philo->sems->write_sem);
+			exit(EXIT_SUCCESS);
 		}
-		i++;
+		sem_post(philo->sems->die_sem);
+		ft_sleep(1);
 	}
 	return (0);
 }
 
-int	check_if_all_ate(t_philo *philos)
+void	*check_if_all_ate(void *ptr)
 {
-	int	i;
-	int	finished_eating;
+	int				i;
+	int				finished_eating;
+	t_simulation	*sim;
 
 	i = 0;
 	finished_eating = 0;
-	if (philos[0].data->amount_meals == -1)
-		return (0);
-	while (i < philos[0].data->philos)
-	{
-		pthread_mutex_lock(&philos[i].meal_lock);
-		if (philos[i].meals_eaten >= philos[i].data->amount_meals)
-			finished_eating++;
-		pthread_mutex_unlock(&philos[i].meal_lock);
-		i++;
-	}
-	if (finished_eating == philos[0].data->philos)
-	{
-		pthread_mutex_lock(&philos[0].data->dead_stop);
-		philos->data->dead_flag = 1;
-		pthread_mutex_unlock(&philos[0].data->dead_stop);
-		return (1);
-	}
-	return (0);
-}
-
-void	*monitor(void *pointer)
-{
-	t_philo	*philos;
-
-	philos = (t_philo *)pointer;
+	sim = (t_simulation *)ptr;
 	while (1)
 	{
-		if (check_if_dead(philos) == 1)
-			break ;
-		if (check_if_all_ate(philos) == 1)
-			break ;
-		ft_usleep(1);
+		sem_wait(sim->meals_eaten);
+		++finished_eating;
+		if (finished_eating >= sim->philos)
+			destroy_all(sim, NULL, 1, EXIT_SUCCESS);
+		ft_sleep(1);
 	}
-	return (pointer);
+	return (NULL);
 }

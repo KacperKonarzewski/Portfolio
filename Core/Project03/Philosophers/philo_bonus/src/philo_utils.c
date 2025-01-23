@@ -6,7 +6,7 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/16 18:57:58 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/01/20 14:49:06 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/01/23 14:35:59 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,14 +54,20 @@ long	ft_atol(const char *nptr)
 	return (count);
 }
 
-int	clean_up(t_table *table, int len, int error)
+void	clean_up(t_simulation *sim, char *str, int parent, int signal)
 {
 	int	i;
 
-	i = 0;
-	while (i < len)
-		pthread_mutex_destroy(&table->forks[i++]);
-	pthread_mutex_destroy(&table->philos[0].data->dead_stop);
-	pthread_mutex_destroy(&table->philos[0].data->write_lock);
-	return (error);
+	i = -1;
+	if (parent)
+	{
+		while (++i < sim->philos)
+			if (sim->all_philos[i]->pid != -1)
+				kill(sim->all_philos[i]->pid, SIGKILL);
+	}
+	sem_close(sim->forks);
+	sem_close(sim->death);
+	sem_close(sim->meals_eaten);
+	sem_close(sim->message);
+	free(sim->all_philos);
 }

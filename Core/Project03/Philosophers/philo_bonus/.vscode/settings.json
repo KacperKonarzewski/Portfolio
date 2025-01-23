@@ -5,5 +5,8 @@
 			"binaryPath": "/nfs/homes/kkonarze/Core/Project03/Philosophers/philo_bonus/philo_bonus",
 			"binaryArgs": []
 		}
-	]
+	],
+	"files.associations": {
+		"philosophers.h": "c"
+	}
 }

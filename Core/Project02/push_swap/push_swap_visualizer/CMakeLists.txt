@@ -8,5 +8,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 add_subdirectory(dependencies)
 add_subdirectory(src)
 add_subdirectory(tests)
+remove_definitions(-Werror)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/imgui.ini ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/imgui.ini COPYONLY)

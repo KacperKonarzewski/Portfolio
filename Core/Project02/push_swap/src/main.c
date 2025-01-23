@@ -101,9 +101,7 @@ int	main(int argc, char **argv)
 {
 	t_stacks	stacks;
 	int			sorted;
-	size_t		i;
 
-	i = 1;
 	if (argc == 1)
 		return (0);
 	if (argc == 2)
