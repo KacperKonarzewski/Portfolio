@@ -17,7 +17,7 @@ CYAN        = \033[0;96m
 
 # Sources
 
-SRC_FILES   = ft_actions.c ft_init.c ft_parsing.c main.c 
+SRC_FILES   = life.c monitor.c philo_utils.c init_philosophers.c main.c 
 SRC         = $(addprefix $(SRC_DIR), $(SRC_FILES))
 OBJ         = $(addprefix $(OBJ_DIR), $(SRC_FILES:.c=.o))
 

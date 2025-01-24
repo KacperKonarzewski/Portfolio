@@ -6,7 +6,7 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/16 18:57:58 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/01/23 14:35:59 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/01/24 14:24:57 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,20 +54,31 @@ long	ft_atol(const char *nptr)
 	return (count);
 }
 
-void	clean_up(t_simulation *sim, char *str, int parent, int signal)
+void	clean_up(t_simulation *sim, int parent, int signal)
 {
 	int	i;
 
 	i = -1;
 	if (parent)
-	{
 		while (++i < sim->philos)
-			if (sim->all_philos[i]->pid != -1)
-				kill(sim->all_philos[i]->pid, SIGKILL);
+			if (sim->all_philos[i].pid != -1)
+				kill(sim->all_philos[i].pid, SIGKILL);
+	i = -1;
+	while (++i <= sim->max_eat * sim->philos)
+		sem_post(sim->meals_eaten);
+	i = -1;
+	while (++i < sim->philos)
+	{
+		sem_close(sim->all_philos[i].last_meal_sem);
+		free(sim->all_philos[i].sem_name);
 	}
+	sem_wait(sim->death);
+	ft_usleep(100);
 	sem_close(sim->forks);
 	sem_close(sim->death);
 	sem_close(sim->meals_eaten);
 	sem_close(sim->message);
+	sem_close(sim->finish);
 	free(sim->all_philos);
+	exit(signal);
 }

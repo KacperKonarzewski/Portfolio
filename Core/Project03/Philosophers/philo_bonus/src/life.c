@@ -6,21 +6,11 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/17 02:15:11 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/01/23 13:59:56 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/01/24 13:48:58 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosophers.h"
-
-int	check_status(t_philo *philo)
-{
-	sem_wait(philo->data->death);
-	if (get_time() - philo->last_meal >= philo->data->time_to_die + 1
-		&& philo->eating_flag == 0)
-		
-	sem_post(philo->data->death);
-	return (0);
-}
 
 int	lock_forks(t_philo *philo)
 {
@@ -35,26 +25,21 @@ int	lock_forks(t_philo *philo)
 
 int	eat(t_philo *philo)
 {
-	if (check_status(philo))
-		return (1);
 	if (lock_forks(philo))
 		return (1);
-	check_status(philo);
 	print_message("is eating", philo, philo->id);
+	sem_wait(philo->last_meal_sem);
 	philo->last_meal = get_time();
-
+	sem_post(philo->last_meal_sem);
 	ft_usleep(philo->data->time_to_eat);
-
-	philo->eating_flag = 0;
-	philo->meals_eaten++;
-
+	sem_post(philo->data->meals_eaten);
+	sem_post(philo->data->forks);
+	sem_post(philo->data->forks);
 	return (0);
 }
 
 int	dream(t_philo *philo)
 {
-	if (check_status(philo))
-		return (1);
 	print_message("is sleeping", philo, philo->id);
 	ft_usleep(philo->data->time_to_sleep);
 	return (0);
