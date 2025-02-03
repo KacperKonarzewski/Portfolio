@@ -6,7 +6,7 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/03 09:29:13 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/02/03 13:11:42 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/02/03 19:54:59 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,11 +80,11 @@ static void	check_redirections(char **splitted, int i)
 {
 	if (!ft_strncmp(splitted[i], "<", 2) && splitted[i + 1])
 		reassemble_split(splitted, i, 0);
-	else if (!ft_strncmp(splitted[i], ">", 2) && splitted[i + 1])
+	if (!ft_strncmp(splitted[i], ">", 2) && splitted[i + 1])
 		reassemble_split(splitted, i, 1);
-	else if (!ft_strncmp(splitted[i], ">>", 3) && splitted[i + 1])
+	if (!ft_strncmp(splitted[i], ">>", 3) && splitted[i + 1])
 		reassemble_split(splitted, i, 2);
-	else if (!ft_strncmp(splitted[i], "<<", 3) && splitted[i + 1])
+	if (!ft_strncmp(splitted[i], "<<", 3) && splitted[i + 1])
 	{
 		handle_hear_doc(splitted[i + 1]);
 		free(splitted[i]);

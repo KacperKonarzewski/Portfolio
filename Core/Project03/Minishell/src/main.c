@@ -6,25 +6,35 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/31 01:51:53 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/02/03 14:45:21 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/02/03 22:27:02 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-int	handle_text(char *text)
+int	handle_text(char *text, char **envp)
 {
 	char	cwd[PATH_MAX];
+	int		i;
 
+	i = -1;
 	if (!ft_strncmp(text, "exit", 5))
-	{
-		free(text);
 		exit(EXIT_SUCCESS);
-	}
 	else if (!ft_strncmp(text, "pwd", 4))
 	{
 		if (getcwd(cwd, sizeof(cwd)) != NULL)
 			printf("%s\n", cwd);
+		return (1);
+	}
+	else if (!ft_strncmp(text, "env", 4))
+	{
+		while (envp[++i])
+			printf("%s\n", envp[i]);
+		return (1);
+	}
+	else if (!ft_strncmp(text, "cd", 2))
+	{
+		chdir(text + 3);
 		return (1);
 	}
 	return (0);
@@ -40,7 +50,7 @@ void	main_loop(int original_stdin, int original_stdout, char **envp)
 		if (!text)
 			break ;
 		add_history(text);
-		if (handle_text(text))
+		if (handle_text(text, envp))
 		{
 			free(text);
 			continue ;
