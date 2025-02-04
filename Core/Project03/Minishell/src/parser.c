@@ -6,7 +6,7 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/03 09:29:13 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/02/04 14:45:42 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/02/04 23:47:33 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,7 +84,7 @@ int	check_redirections(char **splitted, int i)
 	return (0);
 }
 
-void	handle_special(char **splitted, t_env_var *envp)
+void	handle_special(char **splitted, t_env_var *envp, int type)
 {
 	char	*env;
 	int		i;
@@ -92,15 +92,19 @@ void	handle_special(char **splitted, t_env_var *envp)
 	i = -1;
 	while (splitted[++i])
 	{
-		if (ft_strchr(splitted[i], '$'))
+		if (ft_strchr(splitted[i], '$') && ft_strncmp(splitted[i], "$", 2))
 		{
 			env = get_env_var(envp, splitted[i] + 1);
-			if (!env && !ft_strncmp(splitted[i], "$", 2))
+			if (!env)
+			{
+				free(splitted[i]);
+				splitted[i] = ft_strdup("");
 				continue ;
+			}
 			free(splitted[i]);
 			splitted[i] = ft_strdup(env);
 		}
-		if (check_redirections(splitted, i))
+		if (type && check_redirections(splitted, i))
 			if (splitted[i--] == 0)
 				break ;
 	}

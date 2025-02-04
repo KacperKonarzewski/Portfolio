@@ -6,7 +6,7 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/04 20:32:54 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/02/04 14:44:49 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/02/04 23:32:00 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,9 @@ int	try_exec(char **flag, char **envp)
 	path = ft_strdup(flag[0]);
 	if (execve(path, flag, envp) == -1)
 	{
+		free_split(flag);
 		free(path);
+		free_split(envp);
 		return (1);
 	}
 	return (0);
@@ -63,6 +65,7 @@ char	**build_env_array(t_env_var **head)
 	int			i;
 
 	current = *head;
+	count = 0;
 	while (current)
 	{
 		count++;
@@ -88,24 +91,22 @@ void	use_cmd(char *cmd, t_env_var *envp)
 	char	*path;
 	char	**converted;
 
-	converted = build_env_array(&envp);
 	flag = ft_split(cmd, " ");
 	if (handle_text(flag, envp))
 	{
 		free_split(flag);
 		exit(EXIT_SUCCESS);
 	}
-	handle_special(flag, envp);
+	handle_special(flag, envp, 1);
+	converted = build_env_array(&envp);
 	path = get_path(converted, flag[0]);
 	if (!path && try_exec(flag, converted))
-	{
-		free_split(flag);
 		error(0, "Command not found!\n");
-	}
 	if (execve(path, flag, converted) == -1)
 	{
 		free_split(flag);
 		free(path);
+		free_split(converted);
 		error(1, NULL);
 	}
 }

@@ -6,7 +6,7 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/31 01:49:52 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/02/04 14:45:02 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/02/04 23:33:01 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,15 +39,17 @@ void	child(char *cmd, t_env_var *envp);
 void	child_pipe(char *cmd, t_env_var *envp, int is_last);
 char	*get_env_var(t_env_var *head, const char *key);
 int		handle_text(char **text, t_env_var *envp);
-void	handle_special(char **splitted, t_env_var *envp);
+void	handle_special(char **splitted, t_env_var *envp, int type);
 int		reassemble_split(char **splitted, int i, int type);
 void	signal_handler(int sig);
 int		ft_pwd(void);
 int		ft_cd(char *text);
-int		ft_echo(char **text);
+int		ft_echo(char **text, t_env_var *envp);
 int		get_input(char **line);
 int		check_redirections(char **splitted, int i);
 void	envp_to_list(t_env_var **head, char **envp);
 int		print_env_vars(t_env_var *current);
+void	free_env_list(t_env_var **head);
+void	set_env_var(t_env_var **head, const char *key, const char *value);
 
 #endif

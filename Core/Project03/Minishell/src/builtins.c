@@ -6,7 +6,7 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/04 08:27:08 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/02/04 13:20:57 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/02/04 23:36:09 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ int	ft_cd(char *text)
 	return (1);
 }
 
-int	ft_echo(char **text)
+int	ft_echo(char **text, t_env_var *envp)
 {
 	int		i;
 	int		new_line;
@@ -40,6 +40,7 @@ int	ft_echo(char **text)
 		new_line = 1;
 		i = 2;
 	}
+	handle_special(text, envp, 0);
 	while (text[i])
 	{
 		if (check_redirections(text, i))
