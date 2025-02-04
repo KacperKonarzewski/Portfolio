@@ -6,13 +6,13 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/03 09:29:13 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/02/03 19:54:59 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/02/04 14:45:42 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-void	manage_pipes(char *cmd, char **envp)
+void	manage_pipes(char *cmd, t_env_var *envp)
 {
 	int		i;
 	char	**splitted;
@@ -32,23 +32,6 @@ void	manage_pipes(char *cmd, char **envp)
 	free_split(splitted);
 }
 
-static char	*get_env(char **envp, char *cmd)
-{
-	char	*tmp;
-	size_t	len;
-	int		i;
-
-	i = 0;
-	tmp = ft_strjoin(cmd + 1, "=");
-	len = ft_strlen(tmp);
-	while (envp[i] && ft_strnstr(envp[i], tmp, len) == 0)
-		i++;
-	free(tmp);
-	if (envp[i])
-		return (envp[i] + len);
-	return ("");
-}
-
 void	handle_hear_doc(char *limiter)
 {
 	pid_t	line_reader;
@@ -61,13 +44,11 @@ void	handle_hear_doc(char *limiter)
 	if (line_reader == 0)
 	{
 		close(fd[0]);
-		while (1)
+		while (get_input(&line))
 		{
-			line = readline(">");
-			if (ft_strncmp(line, limiter, ft_strlen(limiter) + 1) == 0)
+			if (ft_strncmp(line, limiter, ft_strlen(limiter)) == 0)
 				exit(EXIT_SUCCESS);
 			write(fd[1], line, ft_strlen(line));
-			write(fd[1], "\n", 1);
 			free(line);
 		}
 	}
@@ -76,14 +57,14 @@ void	handle_hear_doc(char *limiter)
 	wait(NULL);
 }
 
-static void	check_redirections(char **splitted, int i)
+int	check_redirections(char **splitted, int i)
 {
 	if (!ft_strncmp(splitted[i], "<", 2) && splitted[i + 1])
-		reassemble_split(splitted, i, 0);
+		return (reassemble_split(splitted, i, 0));
 	if (!ft_strncmp(splitted[i], ">", 2) && splitted[i + 1])
-		reassemble_split(splitted, i, 1);
+		return (reassemble_split(splitted, i, 1));
 	if (!ft_strncmp(splitted[i], ">>", 3) && splitted[i + 1])
-		reassemble_split(splitted, i, 2);
+		return (reassemble_split(splitted, i, 2));
 	if (!ft_strncmp(splitted[i], "<<", 3) && splitted[i + 1])
 	{
 		handle_hear_doc(splitted[i + 1]);
@@ -98,10 +79,12 @@ static void	check_redirections(char **splitted, int i)
 			splitted[i + 2] = 0;
 			i++;
 		}
+		return (1);
 	}
+	return (0);
 }
 
-char	**handle_special(char **splitted, char **envp)
+void	handle_special(char **splitted, t_env_var *envp)
 {
 	char	*env;
 	int		i;
@@ -111,13 +94,14 @@ char	**handle_special(char **splitted, char **envp)
 	{
 		if (ft_strchr(splitted[i], '$'))
 		{
-			env = get_env(envp, splitted[i]);
-			if (!ft_strncmp(env, "", 1) && !ft_strncmp(splitted[i], "$", 2))
+			env = get_env_var(envp, splitted[i] + 1);
+			if (!env && !ft_strncmp(splitted[i], "$", 2))
 				continue ;
 			free(splitted[i]);
 			splitted[i] = ft_strdup(env);
 		}
-		check_redirections(splitted, i);
+		if (check_redirections(splitted, i))
+			if (splitted[i--] == 0)
+				break ;
 	}
-	return (splitted);
 }

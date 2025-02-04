@@ -6,7 +6,7 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/03 09:26:12 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/02/03 13:02:07 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/02/04 11:39:28 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ int	file_opener(char *argv, int i)
 	return (fd);
 }
 
-void	reassemble_split(char **splitted, int i, int type)
+int	reassemble_split(char **splitted, int i, int type)
 {
 	int	fd;
 
@@ -72,4 +72,33 @@ void	reassemble_split(char **splitted, int i, int type)
 		splitted[i + 2] = 0;
 		i++;
 	}
+	return (1);
+}
+
+int	get_input(char **line)
+{
+	char	*buffer;
+	char	c;
+	int		bytes_read;
+	int		i;
+
+	i = 0;
+	bytes_read = 0;
+	buffer = (char *)malloc(1000);
+	if (!buffer)
+		return (-1);
+	write(0, ">", 1);
+	bytes_read = read(0, &c, 1);
+	while (bytes_read && c != '\n' && c != '\0')
+	{
+		if (c != '\n' && c != '\0')
+			buffer[i] = c;
+		i++;
+		bytes_read = read(0, &c, 1);
+	}
+	buffer[i] = '\n';
+	buffer[++i] = '\0';
+	*line = ft_strdup(buffer);
+	free(buffer);
+	return (bytes_read);
 }

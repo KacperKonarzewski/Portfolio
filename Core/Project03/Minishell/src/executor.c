@@ -6,7 +6,7 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/04 20:32:54 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/02/03 13:42:34 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/02/04 14:44:49 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,30 +41,76 @@ static char	*get_path(char **envp, char *cmd)
 	return (NULL);
 }
 
-void	use_cmd(char *cmd, char **envp)
+int	try_exec(char **flag, char **envp)
+{
+	char	*path;
+
+	path = ft_strdup(flag[0]);
+	if (execve(path, flag, envp) == -1)
+	{
+		free(path);
+		return (1);
+	}
+	return (0);
+}
+
+char	**build_env_array(t_env_var **head)
+{
+	t_env_var	*current;
+	int			count;
+	char		**envp;
+	char		*entry;
+	int			i;
+
+	current = *head;
+	while (current)
+	{
+		count++;
+		current = current->next;
+	}
+	envp = malloc((count + 1) * sizeof(char *));
+	current = *head;
+	i = -1;
+	while (++i < count)
+	{
+		entry = malloc(ft_strlen(current->key) + ft_strlen(current->value) + 2);
+		sprintf(entry, "%s=%s", current->key, current->value);
+		envp[i] = entry;
+		current = current->next;
+	}
+	envp[count] = NULL;
+	return (envp);
+}
+
+void	use_cmd(char *cmd, t_env_var *envp)
 {
 	char	**flag;
 	char	*path;
+	char	**converted;
 
+	converted = build_env_array(&envp);
 	flag = ft_split(cmd, " ");
+	if (handle_text(flag, envp))
+	{
+		free_split(flag);
+		exit(EXIT_SUCCESS);
+	}
 	handle_special(flag, envp);
-	path = get_path(envp, flag[0]);
-	if (!path)
+	path = get_path(converted, flag[0]);
+	if (!path && try_exec(flag, converted))
 	{
 		free_split(flag);
 		error(0, "Command not found!\n");
 	}
-	if (execve(path, flag, envp) == -1)
+	if (execve(path, flag, converted) == -1)
 	{
 		free_split(flag);
 		free(path);
 		error(1, NULL);
 	}
-	free_split(flag);
-	free(path);
 }
 
-void	child(char *cmd, char **envp)
+void	child(char *cmd, t_env_var *envp)
 {
 	pid_t	pid;
 
@@ -80,7 +126,7 @@ void	child(char *cmd, char **envp)
 		waitpid(pid, NULL, 0);
 }
 
-void	child_pipe(char *cmd, char **envp, int is_last)
+void	child_pipe(char *cmd, t_env_var *envp, int is_last)
 {
 	pid_t	pid;
 	int		fd[2];

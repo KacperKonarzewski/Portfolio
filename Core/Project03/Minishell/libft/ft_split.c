@@ -6,7 +6,7 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/02 11:50:54 by kkonarze          #+#    #+#             */
-/*   Updated: 2024/12/30 16:41:55 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/02/04 11:57:45 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,11 +51,8 @@ static void	put_values(char **strs, int maxi, char *str, char *charset)
 		while (str[j] && find_sep(charset, str[j]))
 			j++;
 		length = 0;
-		while (str[j] && !find_sep(charset, str[j]))
-		{
+		while (str[j] && !find_sep(charset, str[j]) && ++j)
 			length++;
-			j++;
-		}
 		strs[i] = (char *)malloc(sizeof(char) * (length + 1));
 		k = 0;
 		while (length-- > 0)
