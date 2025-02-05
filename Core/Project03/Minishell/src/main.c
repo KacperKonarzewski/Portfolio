@@ -6,7 +6,7 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/31 01:51:53 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/02/05 00:44:36 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/02/05 12:40:49 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,38 +19,35 @@ int	handle_before(char *text, t_env_var **env)
 	splitted = ft_split(text, " =");
 	if (!ft_strncmp(splitted[0], "exit", 5))
 		exit(EXIT_SUCCESS);
-	else if (!ft_strncmp(splitted[0], "cd", 2) && splitted[1])
-	{
-		ft_cd(splitted[1]);
-		free_split(splitted);
-		return (1);
-	}
+	else if (!ft_strncmp(splitted[0], "cd", 3) && splitted[1])
+		return (ft_cd(splitted[1]), free_split(splitted), 1);
 	else if (!ft_strncmp(splitted[0], "export", 7) && splitted[1] \
 		&& splitted[2])
-	{
-		set_env_var(env, splitted[1], splitted[2]);
-		free_split(splitted);
-		return (1);
-	}
+		return (set_env_var(env, splitted[1], splitted[2]), \
+				free_split(splitted), 1);
+	else if (!ft_strncmp(splitted[0], "unset", 6) && splitted[1])
+		return (unset_env_var(env, splitted[1]), free_split(splitted), 1);
 	free_split(splitted);
 	return (0);
 }
 
-int	handle_text(char **text, t_env_var *envp)
+int	handle_text(char **text, t_env_var *envp, int *status)
 {
 	if (!ft_strncmp(text[0], "pwd", 4))
 		return (ft_pwd());
 	else if (!ft_strncmp(text[0], "env", 4))
 		return (print_env_vars(envp));
 	else if (!ft_strncmp(text[0], "echo", 5))
-		return (ft_echo(text, envp));
+		return (ft_echo(text, envp, status));
 	return (0);
 }
 
 void	main_loop(int original_stdin, int original_stdout, t_env_var **envp)
 {
 	char	*text;
+	int		status;
 
+	status = 0;
 	while (1)
 	{
 		text = readline("MiniAss 🍑>");
@@ -63,9 +60,9 @@ void	main_loop(int original_stdin, int original_stdout, t_env_var **envp)
 			continue ;
 		}
 		if (ft_strchr(text, '|'))
-			manage_pipes(text, *envp);
+			manage_pipes(text, *envp, &status);
 		else
-			child(text, *envp);
+			child(text, *envp, &status);
 		dup2(original_stdin, STDIN_FILENO);
 		dup2(original_stdout, STDOUT_FILENO);
 		free(text);

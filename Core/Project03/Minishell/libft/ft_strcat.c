@@ -1,40 +1,31 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_strnstr.c                                       :+:      :+:    :+:   */
+/*   ft_strcat.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/11/28 22:11:49 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/02/05 08:06:42 by kkonarze         ###   ########.fr       */
+/*   Created: 2025/02/05 10:38:01 by kkonarze          #+#    #+#             */
+/*   Updated: 2025/02/05 10:38:19 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-char	*ft_strnstr(const char *big, const char *little, size_t len)
+char	*ft_strcat(char *dest, char *src)
 {
-	size_t	i;
-	size_t	little_len;
-	size_t	count;
+	int	lenght;
+	int	i;
 
+	lenght = 0;
 	i = 0;
-	little_len = ft_strlen(little);
-	if (little_len == 0)
-		return ((char *)big);
-	count = 0;
-	while (i < len && big[i] && little[count])
+	while (dest[lenght] != '\0')
+		lenght++;
+	while (src[i] != '\0')
 	{
-		if (big[i] == little[count])
-			count++;
-		else
-		{
-			i -= count;
-			count = 0;
-		}
+		dest[lenght + i] = src[i];
 		i++;
 	}
-	if (little_len == count)
-		return ((char *)&big[i - count]);
-	return (0);
+	dest[lenght + i] = src[i];
+	return (dest);
 }

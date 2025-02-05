@@ -6,23 +6,23 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/03 09:26:12 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/02/04 11:39:28 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/02/05 09:15:46 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-void	error(int i, char *str)
+void	error(int i, char *str, int error_code)
 {
 	if (i)
 	{
 		perror("Error");
-		exit(EXIT_FAILURE);
+		exit(errno);
 	}
 	else
 	{
 		printf("%s", str);
-		exit(EXIT_SUCCESS);
+		exit(error_code);
 	}
 }
 
@@ -47,7 +47,7 @@ int	file_opener(char *argv, int i)
 	else
 		fd = open(argv, O_WRONLY | O_CREAT | O_APPEND, 0777);
 	if (fd == -1)
-		error(1, NULL);
+		error(1, NULL, 0);
 	return (fd);
 }
 

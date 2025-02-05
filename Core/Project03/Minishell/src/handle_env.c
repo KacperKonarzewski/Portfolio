@@ -6,7 +6,7 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/04 13:44:12 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/02/05 00:45:59 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/02/05 10:07:50 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,30 +100,4 @@ void	free_env_list(t_env_var **head)
 		free(temp);
 	}
 	*head = NULL;
-}
-void unset_env_var(const char *key)
-{
-	EnvVar *current = env_list;
-	EnvVar *prev = NULL;
-
-	while (current)
-	{
-		if (strcmp(current->key, key) == 0)
-		{
-			if (prev == NULL)
-			{
-				env_list = current->next;
-			}
-			else
-			{
-				prev->next = current->next;
-			}
-			free(current->key);
-			free(current->value);
-			free(current);
-			return;
-		}
-		prev = current;
-		current = current->next;
-	}
 }

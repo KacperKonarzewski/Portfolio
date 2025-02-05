@@ -6,13 +6,13 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/03 09:29:13 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/02/04 23:47:33 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/02/05 10:20:09 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-void	manage_pipes(char *cmd, t_env_var *envp)
+void	manage_pipes(char *cmd, t_env_var *envp, int *status)
 {
 	int		i;
 	char	**splitted;
@@ -28,7 +28,7 @@ void	manage_pipes(char *cmd, t_env_var *envp)
 	}
 	i = -1;
 	while (splitted[++i])
-		child_pipe(splitted[i], envp, splitted[i + 1] == NULL);
+		child_pipe(splitted[i], envp, splitted[i + 1] == NULL, status);
 	free_split(splitted);
 }
 
@@ -39,7 +39,7 @@ void	handle_hear_doc(char *limiter)
 	char	*line;
 
 	if (pipe(fd) == -1)
-		error(1, "Error with pipe creation!");
+		error(1, NULL, 1);
 	line_reader = fork();
 	if (line_reader == 0)
 	{
@@ -84,7 +84,30 @@ int	check_redirections(char **splitted, int i)
 	return (0);
 }
 
-void	handle_special(char **splitted, t_env_var *envp, int type)
+static int	handle_code(char **splitted, int i, int *status)
+{
+	//int		j;
+	//int		count;
+	//char	*trimmed;
+
+	//j = -1;
+	//count = 0;
+	//if (ft_strchr(splitted[i], '\''))
+	//	return (1);
+	//while (splitted[i][++j])
+	//	if (splitted[i][j] == '\"')
+	//		count++;
+	//if (count && count % 2)
+	//	return (1);
+	//trimmed = ft_strtrim(splitted[i], "\"");
+	//free(splitted[i]);
+	//splitted[i] = trimmed;
+	if (!ft_strncmp(splitted[i], "$?", 3))
+		return (free(splitted[i]), splitted[i] = ft_itoa(*status), 1);
+	return (0);
+}
+
+void	handle_special(char **splitted, t_env_var *envp, int type, int *status)
 {
 	char	*env;
 	int		i;
@@ -94,6 +117,8 @@ void	handle_special(char **splitted, t_env_var *envp, int type)
 	{
 		if (ft_strchr(splitted[i], '$') && ft_strncmp(splitted[i], "$", 2))
 		{
+			if (handle_code(splitted, i, status))
+				continue ;
 			env = get_env_var(envp, splitted[i] + 1);
 			if (!env)
 			{

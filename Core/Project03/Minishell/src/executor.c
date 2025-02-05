@@ -6,7 +6,7 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/04 20:32:54 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/02/04 23:32:00 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/02/05 11:45:41 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,8 +20,10 @@ static char	*get_path(char **envp, char *cmd)
 	int		i;
 
 	i = 0;
-	while (ft_strnstr(envp[i], "PATH", 4) == 0)
+	while (envp[i] && ft_strnstr(envp[i], "PATH", 4) == 0)
 		i++;
+	if (!envp[i])
+		return (NULL);
 	poss_paths = ft_split(envp[i] + 5, ":");
 	i = -1;
 	while (poss_paths[++i])
@@ -30,10 +32,7 @@ static char	*get_path(char **envp, char *cmd)
 		path = ft_strjoin(part_path, cmd);
 		free(part_path);
 		if (access(path, F_OK) == 0)
-		{
-			free_split(poss_paths);
-			return (path);
-		}
+			return (free_split(poss_paths), path);
 		free(path);
 	}
 	i = -1;
@@ -56,102 +55,69 @@ int	try_exec(char **flag, char **envp)
 	return (0);
 }
 
-char	**build_env_array(t_env_var **head)
-{
-	t_env_var	*current;
-	int			count;
-	char		**envp;
-	char		*entry;
-	int			i;
-
-	current = *head;
-	count = 0;
-	while (current)
-	{
-		count++;
-		current = current->next;
-	}
-	envp = malloc((count + 1) * sizeof(char *));
-	current = *head;
-	i = -1;
-	while (++i < count)
-	{
-		entry = malloc(ft_strlen(current->key) + ft_strlen(current->value) + 2);
-		sprintf(entry, "%s=%s", current->key, current->value);
-		envp[i] = entry;
-		current = current->next;
-	}
-	envp[count] = NULL;
-	return (envp);
-}
-
-void	use_cmd(char *cmd, t_env_var *envp)
+void	use_cmd(char *cmd, t_env_var *envp, int *status)
 {
 	char	**flag;
 	char	*path;
 	char	**converted;
 
-	flag = ft_split(cmd, " ");
-	if (handle_text(flag, envp))
+	flag = ft_split_quotes(cmd, " ");
+	if (handle_text(flag, envp, status))
 	{
 		free_split(flag);
 		exit(EXIT_SUCCESS);
 	}
-	handle_special(flag, envp, 1);
+	handle_special(flag, envp, 1, status);
 	converted = build_env_array(&envp);
 	path = get_path(converted, flag[0]);
 	if (!path && try_exec(flag, converted))
-		error(0, "Command not found!\n");
+		error(0, "Command not found!\n", 127);
 	if (execve(path, flag, converted) == -1)
 	{
 		free_split(flag);
 		free(path);
 		free_split(converted);
-		error(1, NULL);
+		error(1, NULL, 0);
 	}
 }
 
-void	child(char *cmd, t_env_var *envp)
+void	child(char *cmd, t_env_var *envp, int *status)
 {
 	pid_t	pid;
 
 	pid = fork();
 	if (pid == -1)
-		error(1, "Fork failed");
+		error(1, NULL, 1);
 	if (pid == 0)
-	{
-		use_cmd(cmd, envp);
-		exit(EXIT_SUCCESS);
-	}
-	else
-		waitpid(pid, NULL, 0);
+		use_cmd(cmd, envp, status);
+	waitpid(pid, status, 0);
+	*status = (WIFEXITED(*status) != 0) * WEXITSTATUS(*status) \
+			+ (WIFEXITED(*status) == 0) * 1;
 }
 
-void	child_pipe(char *cmd, t_env_var *envp, int is_last)
+void	child_pipe(char *cmd, t_env_var *envp, int is_last, int *status)
 {
 	pid_t	pid;
 	int		fd[2];
 
 	if (!is_last && pipe(fd) == -1)
-		error(1, "Pipe failed");
+		error(1, NULL, 1);
 	pid = fork();
 	if (pid == -1)
-		error(1, "Fork failed");
+		error(1, NULL, 1);
 	if (pid == 0)
 	{
 		if (!is_last)
 			dup2(fd[1], STDOUT_FILENO);
 		close(fd[0]);
 		close(fd[1]);
-		use_cmd(cmd, envp);
-		exit(EXIT_SUCCESS);
+		use_cmd(cmd, envp, status);
 	}
-	else
-	{
-		if (!is_last)
-			dup2(fd[0], STDIN_FILENO);
-		close(fd[0]);
-		close(fd[1]);
-		waitpid(pid, NULL, 0);
-	}
+	if (!is_last)
+		dup2(fd[0], STDIN_FILENO);
+	close(fd[0]);
+	close(fd[1]);
+	waitpid(pid, status, 0);
+	*status = (WIFEXITED(*status) != 0) * WEXITSTATUS(*status) \
+			+ (WIFEXITED(*status) == 0) * 1;
 }
