@@ -6,7 +6,7 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 10:20:41 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/02/05 14:06:04 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/02/05 23:20:57 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,16 +40,16 @@ static int	amount_of_strings(char *str, char *charset)
 	while (str[++i])
 	{
 		if (str[i] == '\'' && double_q == 0)
-			single_q ^= 1;
+			single_q = !single_q;
 		else if (str[i] == '\"' && single_q == 0)
-			double_q ^= 1;
-		if (!find_sep(charset, str[i])
+			double_q = !double_q;
+		if (str[i] == '\'' && single_q == 0 && double_q == 0)
+			ctr++;
+		else if (str[i] == '\"' && double_q == 0 && single_q == 0)
+			ctr++;
+		else if (!find_sep(charset, str[i])
 			&& (find_sep(charset, str[i + 1]) || str[i + 1] == '\0')
 			&& single_q == 0 && double_q == 0)
-			ctr++;
-		else if (str[i] == '\'' && single_q == 0 && str[i + 1] == '\'')
-			ctr++;
-		else if (str[i] == '\"' && double_q == 0 && str[i + 1] == '\"')
 			ctr++;
 	}
 	return (ctr);
@@ -61,6 +61,8 @@ static char	*copy_str_quotes(const char *str, int start, int end)
 	int		i;
 	int		j;
 
+	if (str[end] == '\'' || str[end] == '\"')
+		end++;
 	ret = malloc(sizeof(char) * (end - start + 1));
 	if (!ret)
 		return (NULL);
@@ -83,28 +85,24 @@ static void	put_values(char **strs, int maxi, char *str, char *charset)
 
 	i[0] = 0;
 	i[1] = 0;
-	q[0] = 0;
-	q[1] = 0;
 	while (i[0] < maxi)
 	{
+		q[0] = 0;
+		q[1] = 0;
 		while (str[i[1]] && find_sep(charset, str[i[1]]) && !q[0] && !q[1])
 			i[1]++;
 		start = i[1];
-		while (str[i[1]])
+		while (str[i[1]++])
 		{
-			if (str[i[1]] == '\'' && q[1] == 0)
+			if (str[i[1] - 1] == '\'' && q[1] == 0)
 				q[0] = !q[0];
-			else if (str[i[1]] == '\"' && q[0] == 0)
+			else if (str[i[1] - 1] == '\"' && q[0] == 0)
 				q[1] = !q[1];
-			else if (!q[0] && !q[1] && find_sep(charset, str[i[1]]))
+			if (!q[0] && !q[1] && (find_sep(charset, str[i[1] - 1]) \
+				|| str[i[1] - 1] == '\'' || str[i[1] - 1] == '\"'))
 				break ;
-			if (str[i[1]] == '\'' && q[0] == 0 && ++i[1])
-				break ;
-			if (str[i[1]] == '\"' && q[1] == 0 && ++i[1])
-				break ;
-			i[1]++;
 		}
-		strs[i[0]++] = copy_str_quotes(str, start, i[1]);
+		strs[i[0]++] = copy_str_quotes(str, start, i[1] - 1);
 	}
 }
 

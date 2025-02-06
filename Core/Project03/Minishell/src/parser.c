@@ -6,7 +6,7 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/03 09:29:13 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/02/05 10:20:09 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/02/06 00:36:34 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,22 +86,6 @@ int	check_redirections(char **splitted, int i)
 
 static int	handle_code(char **splitted, int i, int *status)
 {
-	//int		j;
-	//int		count;
-	//char	*trimmed;
-
-	//j = -1;
-	//count = 0;
-	//if (ft_strchr(splitted[i], '\''))
-	//	return (1);
-	//while (splitted[i][++j])
-	//	if (splitted[i][j] == '\"')
-	//		count++;
-	//if (count && count % 2)
-	//	return (1);
-	//trimmed = ft_strtrim(splitted[i], "\"");
-	//free(splitted[i]);
-	//splitted[i] = trimmed;
 	if (!ft_strncmp(splitted[i], "$?", 3))
 		return (free(splitted[i]), splitted[i] = ft_itoa(*status), 1);
 	return (0);

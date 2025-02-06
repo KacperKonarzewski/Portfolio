@@ -6,7 +6,7 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/04 13:44:12 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/02/05 10:07:50 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/02/05 23:25:17 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ char	*get_env_var(t_env_var *head, const char *key)
 {
 	while (head)
 	{
-		if (ft_strcmp(head->key, key) == 0)
+		if (ft_strncmp(head->key, key, ft_strlen(key)) == 0)
 			return (head->value);
 		head = head->next;
 	}
