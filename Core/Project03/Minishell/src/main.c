@@ -6,7 +6,7 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/31 01:51:53 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/02/05 20:16:49 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/02/06 09:49:53 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,10 @@ int	handle_before(char *text, t_env_var **env)
 
 	splitted = ft_split(text, " =");
 	if (!ft_strncmp(splitted[0], "exit", 5))
+	{
+		printf("exit\n");
 		exit(EXIT_SUCCESS);
+	}
 	else if (!ft_strncmp(splitted[0], "cd", 3) && splitted[1])
 		return (ft_cd(splitted[1]), free_split(splitted), 1);
 	else if (!ft_strncmp(splitted[0], "export", 7) && splitted[1] \
@@ -88,6 +91,7 @@ int	main(int argc, char **argv, char **envp)
 	original_stdout = dup(STDOUT_FILENO);
 	envp_to_list(&list, envp);
 	main_loop(original_stdin, original_stdout, &list);
+	printf("exit\n");
 	free_env_list(&list);
 	close(original_stdin);
 	close(original_stdout);

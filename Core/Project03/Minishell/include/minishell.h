@@ -6,7 +6,7 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/31 01:49:52 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/02/05 19:32:30 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/02/06 14:10:22 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 # include <errno.h>
 # include <dirent.h>
 # include <signal.h>
+# include <stddef.h>
 # include <limits.h>
 # include <sys/wait.h>
 # include <readline/readline.h>

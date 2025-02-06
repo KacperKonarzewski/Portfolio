@@ -6,7 +6,7 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/03 09:29:13 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/02/06 00:36:34 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/02/06 14:29:39 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,34 +84,83 @@ int	check_redirections(char **splitted, int i)
 	return (0);
 }
 
-static int	handle_code(char **splitted, int i, int *status)
+static char	*extract_key(char *splitted, int *last)
 {
-	if (!ft_strncmp(splitted[i], "$?", 3))
-		return (free(splitted[i]), splitted[i] = ft_itoa(*status), 1);
+	char	*key;
+	int		start;
+	int		end;
+	int		i;
+
+	start = *last;
+	while (splitted[start] && splitted[start] != '$')
+		start++;
+	end = start + 1;
+	while (!ft_isdigit(splitted[start + 1]) && \
+		(ft_isalnum(splitted[end]) || splitted[end] == '_'))
+		end++;
+	end += (end == start + 1);
+	key = malloc(sizeof(char) * (end - start + 1));
+	if (!key)
+		return (NULL);
+	i = 0;
+	while (start + i++ < end)
+		key[i - 1] = splitted[start + i - 1];
+	key[end - start] = 0;
+	//printf("%s\n%d\n%d\n", key, end, start);
+	return (key);
+}
+
+int	find_key(char **splitted, char *key, int *status, t_env_var *envp)
+{
+	char		*env;
+	char		*new_str;
+	int			i;
+	ptrdiff_t	dollar;
+
+	(void)envp;
+	dollar = ft_strchr(*splitted, '$') - *splitted;
+	i = -1;
+	if (!ft_strcmp(key, "$?"))
+	{
+		env = ft_itoa(*status);
+		new_str = malloc(sizeof(char) * (ft_strlen(*splitted) + ft_strlen(env) - 1));
+		if (!new_str)
+			return (0);
+		//printf("%s\n", env);
+		while (++i < (int)dollar)
+			new_str[i] = (*splitted)[i];
+		while (i++ < (int)ft_strlen(env))
+			new_str[i - 1] = env[i - 1 - (int)dollar];
+		while (i++ < (int)ft_strlen(*splitted) + (int)ft_strlen(env) - 1)
+			new_str[i - 1] = (*splitted)[i + 1];
+		new_str[i] = 0;
+		free(env);
+		free(*splitted);
+		*splitted = new_str;
+		return (1);
+	}
 	return (0);
 }
+//
+	//	return (free(splitted[i]), splitted[i] = ft_itoa(*status), 1);
+	//
 
 void	handle_special(char **splitted, t_env_var *envp, int type, int *status)
 {
-	char	*env;
+	char	*key;
 	int		i;
+	int		last;
 
 	i = -1;
 	while (splitted[++i])
 	{
-		if (ft_strchr(splitted[i], '$') && ft_strncmp(splitted[i], "$", 2))
+		if (ft_strchr(splitted[i], '$') && !ft_strnstr(splitted[i], "$ ", \
+			ft_strlen(splitted[i])) && splitted[i][0] != '\'')
 		{
-			if (handle_code(splitted, i, status))
-				continue ;
-			env = get_env_var(envp, splitted[i] + 1);
-			if (!env)
-			{
-				free(splitted[i]);
-				splitted[i] = ft_strdup("");
-				continue ;
-			}
-			free(splitted[i]);
-			splitted[i] = ft_strdup(env);
+			last = 0;
+			key = extract_key(splitted[i], &last);
+			if (find_key(&splitted[i], key, status, envp))
+				i--;
 		}
 		if (type && check_redirections(splitted, i))
 			if (splitted[i--] == 0)
