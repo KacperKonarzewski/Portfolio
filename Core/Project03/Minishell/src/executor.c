@@ -6,7 +6,7 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/04 20:32:54 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/02/10 18:09:36 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/02/10 20:23:46 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,7 @@ void	use_cmd(char *cmd, t_env_var *envp, int *status)
 	flag[0] = command;
 	if (handle_text(flag, envp, status))
 		exit(EXIT_SUCCESS);
-	handle_special(flag, envp, 1, status);
+	handle_special(flag + 1, envp, 1, status);
 	converted = build_env_array(&envp);
 	path = get_path(converted, flag[0]);
 	if (!path && try_exec(flag, converted))

@@ -6,7 +6,7 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/04 08:27:08 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/02/07 19:49:01 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/02/10 22:48:18 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,22 +33,16 @@ int	ft_echo(char **text, t_env_var *envp, int *status)
 	int		i;
 	int		new_line;
 
-	i = 1;
 	new_line = 0;
-	if (!ft_strncmp(text[1], "-n", 3))
-	{
+	i = 0;
+	while (!ft_strncmp(text[++i], "-n ", 3))
 		new_line = 1;
-		i = 2;
-	}
-	handle_special(text, envp, 0, status);
+	handle_special(text + 1, envp, 0, status);
 	while (text[i])
 	{
 		if (check_redirections(text, i))
 			continue ;
-		printf("%s", text[i]);
-		if (text[i + 1])
-			printf(" ");
-		i++;
+		printf("%s", text[i++]);
 	}
 	if (!new_line)
 		printf("\n");

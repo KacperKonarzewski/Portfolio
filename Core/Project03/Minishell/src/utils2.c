@@ -6,7 +6,7 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 10:20:41 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/02/10 18:12:31 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/02/10 20:37:12 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,7 +100,7 @@ static void	put_values(char **strs, int maxi, char *str, char *charset)
 				(str[i[1] - 1] == '\"' && q[0] == 0))
 				q[str[i[1] - 1] == '\"'] = !q[str[i[1] - 1] == '\"'];
 			if (!q[0] && !q[1] && (f_sep(charset, str[i[1] - 1]) || \
-		f_sep("\'\"", str[i[1] - 1]) || (f_sep("\'\"", str[i[1]]) && ++(i[2]))))
+f_sep("\'\"", str[i[1] - 1]) || (f_sep("\'\"", str[i[1]]) && ++(i[2]))))
 				break ;
 		}
 		strs[i[0]++] = cpy_str(str, start, i[1] - 1, i[2]);

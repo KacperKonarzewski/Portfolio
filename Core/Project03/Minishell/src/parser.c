@@ -6,7 +6,7 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/03 09:29:13 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/02/10 00:08:08 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/02/10 23:38:37 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,14 +87,14 @@ int	check_redirections(char **splitted, int i)
 	return (0);
 }
 
-static char	*extract_key(char *splitted, int *last)
+static char	*extract_key(char *splitted)
 {
 	char	*key;
 	int		start;
 	int		end;
 	int		i;
 
-	start = *last;
+	start = 0;
 	while (splitted[start] && splitted[start] != '$')
 		start++;
 	end = start + 1;
@@ -193,6 +193,47 @@ int	find_key(char **split, char *key, int *status, t_env_var *envp)
 	new_str[i + (int)len + (int)chars[0]] = 0;
 	return (free(env), free(key), free(*split), *split = new_str, 1);
 }
+
+static void	handle_space(char **text)
+{
+	size_t	len;
+
+	len = ft_strlen(*text);
+	if (text[1] == 0)
+		return ;
+	if ((*text)[len - 1] != ' ')
+		(*text)[len - 1] = 0;
+}
+
+static void	remove_quotes(char **text, int type)
+{
+	int		space[2];
+	char	*joined[2];
+
+	space[0] = 0;
+	space[1] = 0;
+	if ((*text)[ft_strlen((*text)) - 1] == ' ')
+	{
+		space[0] = 1;
+		(*text)[ft_strlen(*text) - 1] = 0;
+	}
+	if ((*text)[0] == '\"' && ++(space[1]))
+		joined[0] = ft_strtrim((*text), "\"");
+	else if ((*text)[0] == '\'' && ++(space[1]))
+		joined[0] = ft_strtrim((*text), "\'");
+	if (space[1])
+	{
+		free((*text));
+		(*text) = joined[0];
+	}
+	if (!type && space[0] && space[1])
+	{
+		joined[1] = ft_strjoin((*text), " ");
+		free((*text));
+		(*text) = joined[1];
+	}
+}
+
 void	handle_special(char **splitted, t_env_var *envp, int type, int *status)
 {
 	char	*key;
@@ -200,18 +241,24 @@ void	handle_special(char **splitted, t_env_var *envp, int type, int *status)
 	int		last;
 
 	i = -1;
+	last = 0;
 	while (splitted[++i])
 	{
+		if (last == 0)
+			handle_space(&splitted[i]);
 		if (ft_strchr(splitted[i], '$') && !ft_strnstr(splitted[i], "$ ", \
 			ft_strlen(splitted[i])) && splitted[i][0] != '\'')
 		{
-			last = 0;
-			key = extract_key(splitted[i], &last);
+			last = 1;
+			key = extract_key(splitted[i]);
 			if (find_key(&splitted[i], key, status, envp))
 				i--;
 		}
-		if (type && check_redirections(splitted, i))
-			if (splitted[i--] == 0)
-				break ;
+		else
+			last = 0;
+		if (type && check_redirections(splitted, i) && splitted[i--] == 0)
+			break ;
+		if (last == 0)
+			remove_quotes(&splitted[i], type);
 	}
 }
