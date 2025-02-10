@@ -6,13 +6,13 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 10:20:41 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/02/05 23:20:57 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/02/10 18:12:31 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-static int	find_sep(char *charset, char c)
+static int	f_sep(char *charset, char c)
 {
 	int	i;
 
@@ -47,15 +47,15 @@ static int	amount_of_strings(char *str, char *charset)
 			ctr++;
 		else if (str[i] == '\"' && double_q == 0 && single_q == 0)
 			ctr++;
-		else if (!find_sep(charset, str[i])
-			&& (find_sep(charset, str[i + 1]) || str[i + 1] == '\0')
-			&& single_q == 0 && double_q == 0)
+		else if (!f_sep(charset, str[i])
+			&& (f_sep(charset, str[i + 1]) || str[i + 1] == '\0' || \
+			f_sep("\'\"", str[i + 1])) && single_q == 0 && double_q == 0)
 			ctr++;
 	}
 	return (ctr);
 }
 
-static char	*copy_str_quotes(const char *str, int start, int end)
+static char	*cpy_str(const char *str, int start, int end, int next)
 {
 	char	*ret;
 	int		i;
@@ -63,12 +63,13 @@ static char	*copy_str_quotes(const char *str, int start, int end)
 
 	if (str[end] == '\'' || str[end] == '\"')
 		end++;
-	ret = malloc(sizeof(char) * (end - start + 1));
+	end += next;
+	ret = malloc(sizeof(char) * (end - start + 2));
 	if (!ret)
 		return (NULL);
 	i = start;
 	j = 0;
-	while (i < end)
+	while (i <= end)
 	{
 		ret[j++] = str[i];
 		i++;
@@ -79,7 +80,7 @@ static char	*copy_str_quotes(const char *str, int start, int end)
 
 static void	put_values(char **strs, int maxi, char *str, char *charset)
 {
-	int	i[2];
+	int	i[3];
 	int	start;
 	int	q[2];
 
@@ -87,22 +88,22 @@ static void	put_values(char **strs, int maxi, char *str, char *charset)
 	i[1] = 0;
 	while (i[0] < maxi)
 	{
+		i[2] = 0;
 		q[0] = 0;
 		q[1] = 0;
-		while (str[i[1]] && find_sep(charset, str[i[1]]) && !q[0] && !q[1])
+		while (str[i[1]] && f_sep(charset, str[i[1]]) && !q[0] && !q[1])
 			i[1]++;
 		start = i[1];
 		while (str[i[1]++])
 		{
-			if (str[i[1] - 1] == '\'' && q[1] == 0)
-				q[0] = !q[0];
-			else if (str[i[1] - 1] == '\"' && q[0] == 0)
-				q[1] = !q[1];
-			if (!q[0] && !q[1] && (find_sep(charset, str[i[1] - 1]) \
-				|| str[i[1] - 1] == '\'' || str[i[1] - 1] == '\"'))
+			if ((str[i[1] - 1] == '\'' && q[1] == 0) || \
+				(str[i[1] - 1] == '\"' && q[0] == 0))
+				q[str[i[1] - 1] == '\"'] = !q[str[i[1] - 1] == '\"'];
+			if (!q[0] && !q[1] && (f_sep(charset, str[i[1] - 1]) || \
+		f_sep("\'\"", str[i[1] - 1]) || (f_sep("\'\"", str[i[1]]) && ++(i[2]))))
 				break ;
 		}
-		strs[i[0]++] = copy_str_quotes(str, start, i[1] - 1);
+		strs[i[0]++] = cpy_str(str, start, i[1] - 1, i[2]);
 	}
 }
 

@@ -6,7 +6,7 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/04 20:32:54 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/02/05 20:51:48 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/02/10 18:09:36 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,14 +59,15 @@ void	use_cmd(char *cmd, t_env_var *envp, int *status)
 {
 	char	**flag;
 	char	*path;
+	char	*command;
 	char	**converted;
 
 	flag = ft_split_quotes(cmd, " ");
+	command = ft_strtrim(flag[0], " ");
+	free(flag[0]);
+	flag[0] = command;
 	if (handle_text(flag, envp, status))
-	{
-		free_split(flag);
 		exit(EXIT_SUCCESS);
-	}
 	handle_special(flag, envp, 1, status);
 	converted = build_env_array(&envp);
 	path = get_path(converted, flag[0]);
