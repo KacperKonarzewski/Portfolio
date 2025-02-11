@@ -6,7 +6,7 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/31 01:49:52 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/02/06 14:10:22 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/02/11 12:33:55 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,10 +42,15 @@ void	child_pipe(char *cmd, t_env_var *envp, int is_last, int *status);
 char	*get_env_var(t_env_var *head, const char *key);
 int		handle_text(char **text, t_env_var *envp, int *status);
 void	handle_special(char **splitted, t_env_var *envp, int type, int *status);
+int		find_key(char **split, char *key, int *status, t_env_var *envp);
+char	*extract_key(char *splitted);
+void	handle_status(char **split, char *k, ptrdiff_t chars[2], int *stat);
+void	handle_space(char **text, int type);
+void	remove_quotes(char **text, int type);
 int		reassemble_split(char **splitted, int i, int type);
 void	signal_handler(int sig);
 int		ft_pwd(void);
-int		ft_cd(char *text);
+int		ft_cd(char *text, int *status);
 int		ft_echo(char **text, t_env_var *envp, int *status);
 int		get_input(char **line);
 int		check_redirections(char **splitted, int i);

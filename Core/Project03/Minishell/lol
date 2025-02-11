@@ -1,0 +1,1036 @@
+* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/12/31 01:51:53 by kkonarze          #+#    #+#             */
+/*   Updated: 2025/02/11 12:08:36 by kkonarze         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "minishell.h"
+
+static int	ft_chrquotes(const char *s, int c)
+{
+	int	i;
+	int	q[2];
+
+	i = -1;
+	q[0] = 0;
+	q[1] = 0;
+	if (!s)
+		return (0);
+	while (s[++i])
+	{
+		if ((s[i] == '\'' && q[1] == 0) || \
+				(s[i] == '\"' && q[0] == 0))
+			q[s[i] == '\"'] = !q[s[i] == '\"'];
+		if (!q[1] && !q[0] && s[i] == c)
+			return (1);
+	}
+	return (0);
+}
+
+int	handle_before(char *text, t_env_var **env, int *status)
+{
+	char	**splitted;
+
+	splitted = ft_split(text, " =");
+	if (!splitted[0])
+		return (free_split(splitted), 1);
+	if (!ft_strncmp(splitted[0], "exit", 5))
+	{
+		printf("exit\n");
+		exit(EXIT_SUCCESS);
+	}
+	else if (!ft_strncmp(splitted[0], "cd", 3) && splitted[1])
+		return (ft_cd(splitted[1], status), free_split(splitted), 1);
+	else if (!ft_strncmp(splitted[0], "export", 7) && splitted[1] \
+		&& splitted[2])
+		return (set_env_var(env, splitted[1], splitted[2]), \
+				free_split(splitted), 1);
+	else if (!ft_strncmp(splitted[0], "unset", 6) && splitted[1])
+		return (unset_env_var(env, splitted[1]), free_split(splitted), 1);
+	free_split(splitted);
+	return (0);
+}
+
+int	handle_text(char **text, t_env_var *envp, int *status)
+{
+	if (!ft_strncmp(text[0], "pwd", 4))
+		return (ft_pwd());
+	else if (!ft_strncmp(text[0], "env", 4))
+		return (print_env_vars(envp));
+	else if (!ft_strncmp(text[0], "echo", 5))
+		return (ft_echo(text, envp, status));
+	return (0);
+}
+
+void	main_loop(int original_stdin, int original_stdout, t_env_var **envp)
+{
+	char	*text;
+	int		status;
+
+	status = 0;
+	while (1)
+	{
+		text = readline("MiniAss 🍑>");
+		if (!text)
+			break ;
+		add_history(text);
+		if (handle_before(text, envp, &status))
+		{
+			free(text);
+			continue ;
+		}
+		if (ft_chrquotes(text, '|'))
+			manage_pipes(text, *envp, &status);
+		else
+			child(text, *envp, &status);
+		dup2(original_stdin, STDIN_FILENO);
+		dup2(original_stdout, STDOUT_FILENO);
+		free(text);
+	}
+}
+
+int	main(int argc, char **argv, char **envp)
+{
+	int					original_stdin;
+	int					original_stdout;
+	struct sigaction	sa;
+	t_env_var			*list;
+
+	(void)argc;
+	(void)argv;
+	list = NULL;
+	sa.sa_handler = signal_handler;
+	sa.sa_flags = 0;
+	sigemptyset(&sa.sa_mask);
+	sigaction(SIGINT, &sa, NULL);
+	signal(SIGQUIT, SIG_IGN);
+	original_stdin = dup(STDIN_FILENO);
+	original_stdout = dup(STDOUT_FILENO);
+	envp_to_list(&list, envp);
+	main_loop(original_stdin, original_stdout, &list);
+	printf("exit\n");
+	free_env_list(&list);
+	close(original_stdin);
+	close(original_stdout);
+	return (0);
+}
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   utils.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/02/03 09:26:12 by kkonarze          #+#    #+#             */
+/*   Updated: 2025/02/05 09:15:46 by kkonarze         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "minishell.h"
+
+void	error(int i, char *str, int error_code)
+{
+	if (i)
+	{
+		perror("Error");
+		exit(errno);
+	}
+	else
+	{
+		printf("%s", str);
+		exit(error_code);
+	}
+}
+
+void	free_split(char **splited_str)
+{
+	int	i;
+
+	i = -1;
+	while (splited_str[++i])
+		free(splited_str[i]);
+	free(splited_str);
+}
+
+int	file_opener(char *argv, int i)
+{
+	int	fd;
+
+	if (!i)
+		fd = open(argv, O_RDONLY, 0777);
+	else if (i == 1)
+		fd = open(argv, O_WRONLY | O_CREAT | O_TRUNC, 0777);
+	else
+		fd = open(argv, O_WRONLY | O_CREAT | O_APPEND, 0777);
+	if (fd == -1)
+		error(1, NULL, 0);
+	return (fd);
+}
+
+int	reassemble_split(char **splitted, int i, int type)
+{
+	int	fd;
+
+	fd = file_opener(splitted[i + 1], type);
+	if (type == 0)
+		dup2(fd, STDIN_FILENO);
+	else
+		dup2(fd, STDOUT_FILENO);
+	close(fd);
+	free(splitted[i]);
+	free(splitted[i + 1]);
+	splitted[i] = 0;
+	splitted[i + 1] = 0;
+	while (splitted[i + 2])
+	{
+		splitted[i] = ft_strdup(splitted[i + 2]);
+		free(splitted[i + 2]);
+		splitted[i + 2] = 0;
+		i++;
+	}
+	return (1);
+}
+
+int	get_input(char **line)
+{
+	char	*buffer;
+	char	c;
+	int		bytes_read;
+	int		i;
+
+	i = 0;
+	bytes_read = 0;
+	buffer = (char *)malloc(1000);
+	if (!buffer)
+		return (-1);
+	write(0, ">", 1);
+	bytes_read = read(0, &c, 1);
+	while (bytes_read && c != '\n' && c != '\0')
+	{
+		if (c != '\n' && c != '\0')
+			buffer[i] = c;
+		i++;
+		bytes_read = read(0, &c, 1);
+	}
+	buffer[i] = '\n';
+	buffer[++i] = '\0';
+	*line = ft_strdup(buffer);
+	free(buffer);
+	return (bytes_read);
+}
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   utils2.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/02/05 10:20:41 by kkonarze          #+#    #+#             */
+/*   Updated: 2025/02/11 12:29:11 by kkonarze         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "minishell.h"
+
+static int	f_sep(char *charset, char c)
+{
+	int	i;
+
+	i = 0;
+	while (charset[i])
+	{
+		if (charset[i] == c)
+			return (1);
+		i++;
+	}
+	return (0);
+}
+
+static int	amount_of_strings(char *str, char *charset)
+{
+	int	i;
+	int	ctr;
+	int	single_q;
+	int	double_q;
+
+	i = -1;
+	ctr = 0;
+	single_q = 0;
+	double_q = 0;
+	while (str[++i])
+	{
+		if (str[i] == '\'' && double_q == 0)
+			single_q = !single_q;
+		else if (str[i] == '\"' && single_q == 0)
+			double_q = !double_q;
+		if (str[i] == '\'' && single_q == 0 && double_q == 0)
+			ctr++;
+		else if (str[i] == '\"' && double_q == 0 && single_q == 0)
+			ctr++;
+		else if (!f_sep(charset, str[i])
+			&& (f_sep(charset, str[i + 1]) || str[i + 1] == '\0' || \
+			f_sep("\'\"", str[i + 1])) && single_q == 0 && double_q == 0)
+			ctr++;
+	}
+	return (ctr);
+}
+
+static char	*cpy_str(const char *str, int start, int end, int next)
+{
+	char	*ret;
+	int		i;
+	int		j;
+
+	if (str[end] == '\'' || str[end] == '\"')
+		end++;
+	end += next;
+	ret = malloc(sizeof(char) * (end - start + 2));
+	if (!ret)
+		return (NULL);
+	i = start;
+	j = 0;
+	while (i <= end)
+	{
+		ret[j++] = str[i];
+		i++;
+	}
+	ret[j] = '\0';
+	return (ret);
+}
+
+static void	put_values(char **strs, int maxi, char *str, char *charset)
+{
+	int	i[3];
+	int	start;
+	int	q[2];
+
+	i[0] = 0;
+	i[1] = 0;
+	while (i[0] < maxi)
+	{
+		i[2] = 0;
+		q[0] = 0;
+		q[1] = 0;
+		while (str[i[1]] && f_sep(charset, str[i[1]]) && !q[0] && !q[1])
+			i[1]++;
+		start = i[1];
+		while (str[i[1]++])
+		{
+			if ((str[i[1] - 1] == '\'' && q[1] == 0) || \
+				(str[i[1] - 1] == '\"' && q[0] == 0))
+				q[str[i[1] - 1] == '\"'] = !q[str[i[1] - 1] == '\"'];
+			if (!q[0] && !q[1] && (f_sep(charset, str[i[1] - 1]) || \
+f_sep("\'\"", str[i[1] - 1]) || (f_sep("\'\"", str[i[1]]) && ++(i[2]))))
+				break ;
+		}
+		strs[i[0]++] = cpy_str(str, start, i[1] - 1, i[2]);
+	}
+}
+
+char	**ft_split_quotes(char *cmd, char *set)
+{
+	char	**strs;
+	int		count;
+
+	count = amount_of_strings(cmd, set);
+	if (count == 0)
+	{
+		strs = (char **)malloc(sizeof(char *) * 2);
+		if (!strs)
+			return (NULL);
+		strs[0] = ft_strdup("");
+		strs[1] = NULL;
+		return (strs);
+	}
+	strs = (char **)malloc(sizeof(char *) * (count + 1));
+	if (!strs)
+		return (NULL);
+	strs[count] = NULL;
+	put_values(strs, count, cmd, set);
+	return (strs);
+}
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   signals.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/02/03 13:52:01 by kkonarze          #+#    #+#             */
+/*   Updated: 2025/02/05 20:01:00 by kkonarze         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "minishell.h"
+
+void	signal_handler(int sig)
+{
+	if (sig == SIGINT)
+	{
+		write(1, "\n", 1);
+		rl_on_new_line();
+		rl_replace_line("", 0);
+		rl_redisplay();
+	}
+}
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parser2.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/02/11 12:29:31 by kkonarze          #+#    #+#             */
+/*   Updated: 2025/02/11 12:31:50 by kkonarze         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "minishell.h"
+
+static void	redo_str(char **split, char *key, ptrdiff_t chars[2], int *status)
+{
+	char	*new_str;
+	int		i;
+
+	i = -1;
+	if (!ft_strcmp(key, "$?"))
+		handle_status(split, key, chars, status);
+	else
+	{
+		new_str = (char *)malloc(chars[0] + chars[1] + 1);
+		if (!new_str)
+			return ;
+		while (++i < (int)chars[0])
+			new_str[i] = (*split)[i];
+		i = -1;
+		while (++i < (int)chars[1])
+			new_str[i + chars[0]] = (*split)[chars[0] + ft_strlen(key) + i];
+		new_str[chars[0] + chars[1]] = 0;
+		free(*split);
+		*split = new_str;
+	}
+}
+
+int	find_key(char **split, char *key, int *status, t_env_var *envp)
+{
+	char		*env;
+	char		*new_str;
+	int			i;
+	ptrdiff_t	chars[2];
+	size_t		len;
+
+	(void)status;
+	chars[0] = ft_strnstr(*split, key, ft_strlen(*split)) - *split;
+	chars[1] = (ptrdiff_t)(ft_strlen(*split) - ft_strlen(key)) - chars[0];
+	env = get_env_var(envp, key + 1);
+	if (!env)
+		return (redo_str(split, key, chars, status), free(key), 1);
+	i = -1;
+	len = ft_strlen(env);
+	new_str = (char *)malloc(chars[0] + len + chars[1] + 1);
+	while (++i < (int)chars[0])
+		new_str[i] = (*split)[i];
+	while (i++ - (int)chars[0] < (int)len)
+		new_str[i - 1] = env[i - 1 - (int)chars[0]];
+	i = -1;
+	while (++i < (int)chars[1])
+		new_str[i + (int)len + (int)chars[0]] = (*split)[i + ft_strlen(key) \
+		+ chars[0]];
+	new_str[i + (int)len + (int)chars[0]] = 0;
+	return (free(env), free(key), free(*split), *split = new_str, 1);
+}
+
+char	*extract_key(char *splitted)
+{
+	char	*key;
+	int		start;
+	int		end;
+	int		i;
+
+	start = 0;
+	while (splitted[start] && splitted[start] != '$')
+		start++;
+	end = start + 1;
+	while (!ft_isdigit(splitted[start + 1]) && \
+		(ft_isalnum(splitted[end]) || splitted[end] == '_'))
+		end++;
+	end += (end == start + 1);
+	key = malloc(sizeof(char) * (end - start + 1));
+	if (!key)
+		return (NULL);
+	i = 0;
+	while (start + i++ < end)
+		key[i - 1] = splitted[start + i - 1];
+	key[end - start] = 0;
+	return (key);
+}
+
+void	handle_space(char **text, int type)
+{
+	size_t	len;
+
+	len = ft_strlen(*text);
+	if (text[1] == 0)
+		return ;
+	if ((*text)[len - 1] != ' ' || type)
+		(*text)[len - 1] = 0;
+}
+
+void	remove_quotes(char **text, int type)
+{
+	int		space[2];
+	char	*joined[2];
+
+	space[0] = 0;
+	space[1] = 0;
+	if ((*text)[ft_strlen((*text)) - 1] == ' ')
+	{
+		space[0] = 1;
+		(*text)[ft_strlen(*text) - 1] = 0;
+	}
+	if ((*text)[0] == '\"' && ++(space[1]))
+		joined[0] = ft_strtrim((*text), "\"");
+	else if ((*text)[0] == '\'' && ++(space[1]))
+		joined[0] = ft_strtrim((*text), "\'");
+	if (space[1])
+	{
+		free((*text));
+		(*text) = joined[0];
+	}
+	if (!type && space[0])
+	{
+		joined[1] = ft_strjoin((*text), " ");
+		free((*text));
+		(*text) = joined[1];
+	}
+}
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parser.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/02/03 09:29:13 by kkonarze          #+#    #+#             */
+/*   Updated: 2025/02/11 12:34:01 by kkonarze         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "minishell.h"
+
+void	manage_pipes(char *cmd, t_env_var *envp, int *status)
+{
+	int		i;
+	int		stat;
+	char	**splitted;
+	char	*tmp;
+
+	splitted = ft_split(cmd, "|");
+	i = -1;
+	while (splitted[++i])
+	{
+		tmp = ft_strtrim(splitted[i], " ");
+		free(splitted[i]);
+		splitted[i] = tmp;
+	}
+	i = -1;
+	stat = 0;
+	while (splitted[++i] && stat == 0)
+	{
+		child_pipe(splitted[i], envp, splitted[i + 1] == NULL, status);
+		stat = *status;
+	}
+	free_split(splitted);
+}
+
+void	handle_hear_doc(char *limiter)
+{
+	pid_t	line_reader;
+	int		fd[2];
+	char	*line;
+	char	*new_limiter;
+
+	new_limiter = ft_strjoin(limiter, "\n");
+	if (pipe(fd) == -1)
+		error(1, NULL, 1);
+	line_reader = fork();
+	if (line_reader == 0)
+	{
+		close(fd[0]);
+		while (get_input(&line))
+		{
+			if (ft_strncmp(line, new_limiter, ft_strlen(limiter) + 1) == 0)
+				exit(EXIT_SUCCESS);
+			write(fd[1], line, ft_strlen(line));
+			free(line);
+		}
+	}
+	free(new_limiter);
+	free(limiter);
+	close(fd[1]);
+	dup2(fd[0], STDIN_FILENO);
+	wait(NULL);
+}
+
+int	check_redirections(char **splitted, int i)
+{
+	if (!ft_strncmp(splitted[i], "<", 2) && splitted[i + 1])
+		return (reassemble_split(splitted, i, 0));
+	if (!ft_strncmp(splitted[i], ">", 2) && splitted[i + 1])
+		return (reassemble_split(splitted, i, 1));
+	if (!ft_strncmp(splitted[i], ">>", 3) && splitted[i + 1])
+		return (reassemble_split(splitted, i, 2));
+	if (!ft_strncmp(splitted[i], "<<", 3) && splitted[i + 1])
+	{
+		handle_hear_doc(ft_strtrim(splitted[i + 1], " "));
+		free(splitted[i]);
+		free(splitted[i + 1]);
+		splitted[i] = 0;
+		splitted[i + 1] = 0;
+		while (splitted[i + 2])
+		{
+			splitted[i] = ft_strdup(splitted[i + 2]);
+			free(splitted[i + 2]);
+			splitted[i + 2] = 0;
+			i++;
+		}
+		return (1);
+	}
+	return (0);
+}
+
+void	handle_status(char **split, char *k, ptrdiff_t chars[2], int *stat)
+{
+	char	*new_str;
+	int		i;
+	char	*code;
+	int		code_len;
+	size_t	key_len;
+
+	code = ft_itoa(*stat);
+	code_len = ft_strlen(code);
+	key_len = ft_strlen(k);
+	new_str = (char *)malloc(chars[0] + code_len + chars[1] + 1);
+	if (!new_str)
+		return ;
+	i = -1;
+	while (++i < (int)chars[0])
+		new_str[i] = (*split)[i];
+	i = -1;
+	while (++i < (int)code_len)
+		new_str[i + chars[0]] = code[i];
+	i = -1;
+	while (++i < (int)chars[1])
+		new_str[i + chars[0] + code_len] = (*split)[i + chars[0] + key_len];
+	new_str[chars[0] + code_len + chars[1]] = 0;
+	free(*split);
+	free(code);
+	*split = new_str;
+}
+
+void	handle_special(char **splitted, t_env_var *envp, int type, int *status)
+{
+	char	*key;
+	int		i;
+	int		last;
+
+	i = -1;
+	last = 0;
+	while (splitted[++i])
+	{
+		if (last == 0)
+			handle_space(&splitted[i], type);
+		if (ft_strchr(splitted[i], '$') && !ft_strnstr(splitted[i], "$ ", \
+			ft_strlen(splitted[i])) && splitted[i][0] != '\'')
+		{
+			last = 1;
+			key = extract_key(splitted[i]);
+			if (find_key(&splitted[i], key, status, envp))
+				i--;
+		}
+		else
+			last = 0;
+		if (type && check_redirections(splitted, i) && splitted[i--] == 0)
+			break ;
+		if (last == 0)
+			remove_quotes(&splitted[i], type);
+	}
+}
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   handle_env2.c                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/02/05 07:32:59 by kkonarze          #+#    #+#             */
+/*   Updated: 2025/02/05 07:49:17 by kkonarze         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "minishell.h"
+
+void	unset_env_var(t_env_var **head, const char *key)
+{
+	t_env_var	*current;
+	t_env_var	*prev;
+
+	current = *head;
+	prev = NULL;
+	while (current)
+	{
+		if (ft_strcmp(current->key, key) == 0)
+		{
+			if (prev == NULL)
+				*head = current->next;
+			else
+				prev->next = current->next;
+			free(current->key);
+			free(current->value);
+			free(current);
+			return ;
+		}
+		prev = current;
+		current = current->next;
+	}
+}
+
+static char	*create_entry(const char *key, const char *value)
+{
+	char	*entry;
+	char	*tmp;
+
+	tmp = ft_strjoin(key, "=");
+	entry = ft_strjoin(tmp, value);
+	free(tmp);
+	return (entry);
+}
+
+char	**build_env_array(t_env_var **head)
+{
+	t_env_var	*current;
+	int			count;
+	char		**envp;
+	int			i;
+
+	current = *head;
+	count = 0;
+	while (current)
+	{
+		count++;
+		current = current->next;
+	}
+	envp = malloc((count + 1) * sizeof(char *));
+	current = *head;
+	i = -1;
+	while (++i < count)
+	{
+		envp[i] = create_entry(current->key, current->value);
+		current = current->next;
+	}
+	envp[count] = NULL;
+	return (envp);
+}
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   handle_env.c                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/02/04 13:44:12 by kkonarze          #+#    #+#             */
+/*   Updated: 2025/02/06 09:17:47 by kkonarze         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "minishell.h"
+
+void	set_env_var(t_env_var **head, const char *key, const char *value)
+{
+	t_env_var	*current;
+	t_env_var	*new_var;
+
+	current = *head;
+	while (current)
+	{
+		if (ft_strcmp(current->key, key) == 0)
+		{
+			free(current->value);
+			current->value = ft_strdup(value);
+			return ;
+		}
+		current = current->next;
+	}
+	new_var = malloc(sizeof(t_env_var));
+	if (!new_var)
+		return ;
+	new_var->key = ft_strdup(key);
+	new_var->value = ft_strdup(value);
+	new_var->next = *head;
+	*head = new_var;
+}
+
+char	*get_env_var(t_env_var *head, const char *key)
+{
+	while (head)
+	{
+		if (ft_strncmp(head->key, key, ft_strlen(key)) == 0)
+			return (head->value);
+		head = head->next;
+	}
+	return (NULL);
+}
+
+void	envp_to_list(t_env_var **head, char **envp)
+{
+	t_env_var	*new_var;
+	char		*entry;
+	char		*equal_sign;
+	int			i;
+
+	i = -1;
+	while (envp[++i])
+	{
+		entry = ft_strdup(envp[i]);
+		equal_sign = ft_strchr(entry, '=');
+		if (equal_sign)
+		{
+			*equal_sign = '\0';
+			new_var = malloc(sizeof(t_env_var));
+			if (!new_var)
+				return ;
+			new_var->key = ft_strdup(entry);
+			new_var->value = ft_strdup(equal_sign + 1);
+			new_var->next = *head;
+			*head = new_var;
+		}
+		free(entry);
+	}
+}
+
+int	print_env_vars(t_env_var *current)
+{
+	while (current)
+	{
+		printf("%s=%s\n", current->key, current->value);
+		current = current->next;
+	}
+	return (1);
+}
+
+void	free_env_list(t_env_var **head)
+{
+	t_env_var	*current;
+	t_env_var	*temp;
+
+	current = *head;
+	while (current)
+	{
+		temp = current;
+		free(current->key);
+		free(current->value);
+		current = current->next;
+		free(temp);
+	}
+	*head = NULL;
+}
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   executor.c                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/01/04 20:32:54 by kkonarze          #+#    #+#             */
+/*   Updated: 2025/02/11 12:14:11 by kkonarze         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "minishell.h"
+
+static char	*get_path(char **envp, char *cmd)
+{
+	char	**poss_paths;
+	char	*path;
+	char	*part_path;
+	int		i;
+
+	i = 0;
+	while (envp[i] && ft_strnstr(envp[i], "PATH", 4) == 0)
+		i++;
+	if (!envp[i])
+		return (NULL);
+	poss_paths = ft_split(envp[i] + 5, ":");
+	i = -1;
+	while (poss_paths[++i])
+	{
+		part_path = ft_strjoin(poss_paths[i], "/");
+		path = ft_strjoin(part_path, cmd);
+		free(part_path);
+		if (access(path, F_OK) == 0)
+			return (free_split(poss_paths), path);
+		free(path);
+	}
+	i = -1;
+	free_split(poss_paths);
+	return (NULL);
+}
+
+int	try_exec(char **flag, char **envp)
+{
+	char	*path;
+
+	path = ft_strdup(flag[0]);
+	if (execve(path, flag, envp) == -1)
+	{
+		free_split(flag);
+		free(path);
+		free_split(envp);
+		return (1);
+	}
+	return (0);
+}
+
+void	use_cmd(char *cmd, t_env_var *envp, int *status)
+{
+	char	**flag;
+	char	*path;
+	char	*command;
+	char	**converted;
+
+	flag = ft_split_quotes(cmd, " ");
+	command = ft_strtrim(flag[0], " ");
+	if (flag[0])
+		free(flag[0]);
+	flag[0] = command;
+	if (handle_text(flag, envp, status))
+		exit(EXIT_SUCCESS);
+	handle_special(flag + 1, envp, 1, status);
+	converted = build_env_array(&envp);
+	path = get_path(converted, flag[0]);
+	if (!path && try_exec(flag, converted))
+		error(0, "Command not found!\n", 127);
+	if (execve(path, flag, converted) == -1)
+	{
+		free_split(flag);
+		free(path);
+		free_split(converted);
+		error(1, NULL, 0);
+	}
+}
+
+void	child(char *cmd, t_env_var *envp, int *status)
+{
+	pid_t	pid;
+
+	pid = fork();
+	if (pid == -1)
+		error(1, NULL, 1);
+	if (pid == 0)
+		use_cmd(cmd, envp, status);
+	waitpid(pid, status, 0);
+	*status = (WIFEXITED(*status) != 0) * WEXITSTATUS(*status) \
+			+ (WIFEXITED(*status) == 0) * 1;
+}
+
+void	child_pipe(char *cmd, t_env_var *envp, int is_last, int *status)
+{
+	pid_t	pid;
+	int		fd[2];
+
+	if (pipe(fd) == -1)
+		error(1, NULL, 1);
+	pid = fork();
+	if (pid == -1)
+		error(1, NULL, 1);
+	if (pid == 0)
+	{
+		if (!is_last)
+			dup2(fd[1], STDOUT_FILENO);
+		close(fd[0]);
+		close(fd[1]);
+		use_cmd(cmd, envp, status);
+		exit(EXIT_SUCCESS);
+	}
+	close(fd[1]);
+	if (!is_last)
+		dup2(fd[0], STDIN_FILENO);
+	close(fd[0]);
+	waitpid(pid, status, 0);
+	*status = (WIFEXITED(*status) != 0) * WEXITSTATUS(*status) \
+			+ (WIFEXITED(*status) == 0) * 1;
+}
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   builtins.c                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/02/04 08:27:08 by kkonarze          #+#    #+#             */
+/*   Updated: 2025/02/11 10:43:27 by kkonarze         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "minishell.h"
+
+int	ft_pwd(void)
+{
+	char	cwd[PATH_MAX];
+
+	if (getcwd(cwd, sizeof(cwd)) == NULL)
+		return (0);
+	printf("%s\n", cwd);
+	return (1);
+}
+
+int	ft_cd(char *text, int *status)
+{
+	if (chdir(text) != 0)
+	{
+		*status = 2;
+		printf("Error: No such file or directory\n");
+	}
+	return (1);
+}
+
+int	ft_echo(char **text, t_env_var *envp, int *status)
+{
+	int		i;
+	int		new_line;
+
+	new_line = 0;
+	i = 0;
+	while (!ft_strncmp(text[++i], "-n ", 3))
+		new_line = 1;
+	handle_special(text + 1, envp, 0, status);
+	while (text[i])
+	{
+		if (check_redirections(text, i))
+			continue ;
+		printf("%s", text[i++]);
+	}
+	if (!new_line)
+		printf("\n");
+	return (1);
+}
+allowed functions:
+readline, rl_clear_history, rl_on_new_line,
+rl_replace_line, rl_redisplay, add_history,
+printf, malloc, free, write, access, open, read,
+close, fork, wait, waitpid, wait3, wait4, signal,
+sigaction, sigemptyset, sigaddset, kill, exit,
+getcwd, chdir, stat, lstat, fstat, unlink, execve,
+dup, dup2, pipe, opendir, readdir, closedir,
+strerror, perror, isatty, ttyname, ttyslot, ioctl,
+getenv, tcsetattr, tcgetattr, tgetent, tgetflag,
+tgetnum, tgetstr, tgoto, tputs
+Your program has to implement:
+• && and || with parenthesis for priorities.
+• Wildcards * should work for the current working directory.

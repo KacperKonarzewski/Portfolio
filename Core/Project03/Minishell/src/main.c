@@ -6,24 +6,47 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/31 01:51:53 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/02/10 23:33:15 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/02/11 12:08:36 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-int	handle_before(char *text, t_env_var **env)
+static int	ft_chrquotes(const char *s, int c)
+{
+	int	i;
+	int	q[2];
+
+	i = -1;
+	q[0] = 0;
+	q[1] = 0;
+	if (!s)
+		return (0);
+	while (s[++i])
+	{
+		if ((s[i] == '\'' && q[1] == 0) || \
+				(s[i] == '\"' && q[0] == 0))
+			q[s[i] == '\"'] = !q[s[i] == '\"'];
+		if (!q[1] && !q[0] && s[i] == c)
+			return (1);
+	}
+	return (0);
+}
+
+int	handle_before(char *text, t_env_var **env, int *status)
 {
 	char	**splitted;
 
 	splitted = ft_split(text, " =");
+	if (!splitted[0])
+		return (free_split(splitted), 1);
 	if (!ft_strncmp(splitted[0], "exit", 5))
 	{
 		printf("exit\n");
 		exit(EXIT_SUCCESS);
 	}
 	else if (!ft_strncmp(splitted[0], "cd", 3) && splitted[1])
-		return (ft_cd(splitted[1]), free_split(splitted), 1);
+		return (ft_cd(splitted[1], status), free_split(splitted), 1);
 	else if (!ft_strncmp(splitted[0], "export", 7) && splitted[1] \
 		&& splitted[2])
 		return (set_env_var(env, splitted[1], splitted[2]), \
@@ -57,12 +80,12 @@ void	main_loop(int original_stdin, int original_stdout, t_env_var **envp)
 		if (!text)
 			break ;
 		add_history(text);
-		if (handle_before(text, envp))
+		if (handle_before(text, envp, &status))
 		{
 			free(text);
 			continue ;
 		}
-		if (ft_strchr(text, '|'))
+		if (ft_chrquotes(text, '|'))
 			manage_pipes(text, *envp, &status);
 		else
 			child(text, *envp, &status);

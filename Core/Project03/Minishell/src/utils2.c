@@ -6,7 +6,7 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 10:20:41 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/02/10 20:37:12 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/02/11 12:29:11 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,6 +113,15 @@ char	**ft_split_quotes(char *cmd, char *set)
 	int		count;
 
 	count = amount_of_strings(cmd, set);
+	if (count == 0)
+	{
+		strs = (char **)malloc(sizeof(char *) * 2);
+		if (!strs)
+			return (NULL);
+		strs[0] = ft_strdup("");
+		strs[1] = NULL;
+		return (strs);
+	}
 	strs = (char **)malloc(sizeof(char *) * (count + 1));
 	if (!strs)
 		return (NULL);

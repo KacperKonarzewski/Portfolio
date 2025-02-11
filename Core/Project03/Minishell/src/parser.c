@@ -6,7 +6,7 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/03 09:29:13 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/02/10 23:38:37 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/02/11 12:34:01 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 void	manage_pipes(char *cmd, t_env_var *envp, int *status)
 {
 	int		i;
+	int		stat;
 	char	**splitted;
 	char	*tmp;
 
@@ -27,8 +28,12 @@ void	manage_pipes(char *cmd, t_env_var *envp, int *status)
 		splitted[i] = tmp;
 	}
 	i = -1;
-	while (splitted[++i])
+	stat = 0;
+	while (splitted[++i] && stat == 0)
+	{
 		child_pipe(splitted[i], envp, splitted[i + 1] == NULL, status);
+		stat = *status;
+	}
 	free_split(splitted);
 }
 
@@ -55,6 +60,7 @@ void	handle_hear_doc(char *limiter)
 		}
 	}
 	free(new_limiter);
+	free(limiter);
 	close(fd[1]);
 	dup2(fd[0], STDIN_FILENO);
 	wait(NULL);
@@ -70,7 +76,7 @@ int	check_redirections(char **splitted, int i)
 		return (reassemble_split(splitted, i, 2));
 	if (!ft_strncmp(splitted[i], "<<", 3) && splitted[i + 1])
 	{
-		handle_hear_doc(splitted[i + 1]);
+		handle_hear_doc(ft_strtrim(splitted[i + 1], " "));
 		free(splitted[i]);
 		free(splitted[i + 1]);
 		splitted[i] = 0;
@@ -87,32 +93,7 @@ int	check_redirections(char **splitted, int i)
 	return (0);
 }
 
-static char	*extract_key(char *splitted)
-{
-	char	*key;
-	int		start;
-	int		end;
-	int		i;
-
-	start = 0;
-	while (splitted[start] && splitted[start] != '$')
-		start++;
-	end = start + 1;
-	while (!ft_isdigit(splitted[start + 1]) && \
-		(ft_isalnum(splitted[end]) || splitted[end] == '_'))
-		end++;
-	end += (end == start + 1);
-	key = malloc(sizeof(char) * (end - start + 1));
-	if (!key)
-		return (NULL);
-	i = 0;
-	while (start + i++ < end)
-		key[i - 1] = splitted[start + i - 1];
-	key[end - start] = 0;
-	return (key);
-}
-
-static void	handle_status(char **split, char *k, ptrdiff_t chars[2], int *stat)
+void	handle_status(char **split, char *k, ptrdiff_t chars[2], int *stat)
 {
 	char	*new_str;
 	int		i;
@@ -141,99 +122,6 @@ static void	handle_status(char **split, char *k, ptrdiff_t chars[2], int *stat)
 	*split = new_str;
 }
 
-static void	redo_str(char **split, char *key, ptrdiff_t chars[2], int *status)
-{
-	char	*new_str;
-	int		i;
-
-	i = -1;
-	if (!ft_strcmp(key, "$?"))
-		handle_status(split, key, chars, status);
-	else
-	{
-		new_str = (char *)malloc(chars[0] + chars[1] + 1);
-		if (!new_str)
-			return ;
-		while (++i < (int)chars[0])
-			new_str[i] = (*split)[i];
-		i = -1;
-		while (++i < (int)chars[1])
-			new_str[i + chars[0]] = (*split)[chars[0] + ft_strlen(key) + i];
-		new_str[chars[0] + chars[1]] = 0;
-		free(*split);
-		*split = new_str;
-	}
-}
-
-int	find_key(char **split, char *key, int *status, t_env_var *envp)
-{
-	char		*env;
-	char		*new_str;
-	int			i;
-	ptrdiff_t	chars[2];
-	size_t		len;
-
-	(void)status;
-	chars[0] = ft_strnstr(*split, key, ft_strlen(*split)) - *split;
-	chars[1] = (ptrdiff_t)(ft_strlen(*split) - ft_strlen(key)) - chars[0];
-	env = get_env_var(envp, key + 1);
-	if (!env)
-		return (redo_str(split, key, chars, status), free(key), 0);
-	i = -1;
-	len = ft_strlen(env);
-	new_str = (char *)malloc(chars[0] + len + chars[1] + 1);
-	while (++i < (int)chars[0])
-		new_str[i] = (*split)[i];
-	while (i++ - (int)chars[0] < (int)len)
-		new_str[i - 1] = env[i - 1 - (int)chars[0]];
-	i = -1;
-	while (++i < (int)chars[1])
-		new_str[i + (int)len + (int)chars[0]] = (*split)[i + ft_strlen(key) \
-		+ chars[0]];
-	new_str[i + (int)len + (int)chars[0]] = 0;
-	return (free(env), free(key), free(*split), *split = new_str, 1);
-}
-
-static void	handle_space(char **text)
-{
-	size_t	len;
-
-	len = ft_strlen(*text);
-	if (text[1] == 0)
-		return ;
-	if ((*text)[len - 1] != ' ')
-		(*text)[len - 1] = 0;
-}
-
-static void	remove_quotes(char **text, int type)
-{
-	int		space[2];
-	char	*joined[2];
-
-	space[0] = 0;
-	space[1] = 0;
-	if ((*text)[ft_strlen((*text)) - 1] == ' ')
-	{
-		space[0] = 1;
-		(*text)[ft_strlen(*text) - 1] = 0;
-	}
-	if ((*text)[0] == '\"' && ++(space[1]))
-		joined[0] = ft_strtrim((*text), "\"");
-	else if ((*text)[0] == '\'' && ++(space[1]))
-		joined[0] = ft_strtrim((*text), "\'");
-	if (space[1])
-	{
-		free((*text));
-		(*text) = joined[0];
-	}
-	if (!type && space[0] && space[1])
-	{
-		joined[1] = ft_strjoin((*text), " ");
-		free((*text));
-		(*text) = joined[1];
-	}
-}
-
 void	handle_special(char **splitted, t_env_var *envp, int type, int *status)
 {
 	char	*key;
@@ -245,7 +133,7 @@ void	handle_special(char **splitted, t_env_var *envp, int type, int *status)
 	while (splitted[++i])
 	{
 		if (last == 0)
-			handle_space(&splitted[i]);
+			handle_space(&splitted[i], type);
 		if (ft_strchr(splitted[i], '$') && !ft_strnstr(splitted[i], "$ ", \
 			ft_strlen(splitted[i])) && splitted[i][0] != '\'')
 		{

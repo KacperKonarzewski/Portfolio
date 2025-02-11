@@ -6,7 +6,7 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/04 20:32:54 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/02/10 20:23:46 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/02/11 12:14:11 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,8 @@ void	use_cmd(char *cmd, t_env_var *envp, int *status)
 
 	flag = ft_split_quotes(cmd, " ");
 	command = ft_strtrim(flag[0], " ");
-	free(flag[0]);
+	if (flag[0])
+		free(flag[0]);
 	flag[0] = command;
 	if (handle_text(flag, envp, status))
 		exit(EXIT_SUCCESS);
@@ -101,7 +102,7 @@ void	child_pipe(char *cmd, t_env_var *envp, int is_last, int *status)
 	pid_t	pid;
 	int		fd[2];
 
-	if (!is_last && pipe(fd) == -1)
+	if (pipe(fd) == -1)
 		error(1, NULL, 1);
 	pid = fork();
 	if (pid == -1)
@@ -113,11 +114,12 @@ void	child_pipe(char *cmd, t_env_var *envp, int is_last, int *status)
 		close(fd[0]);
 		close(fd[1]);
 		use_cmd(cmd, envp, status);
+		exit(EXIT_SUCCESS);
 	}
+	close(fd[1]);
 	if (!is_last)
 		dup2(fd[0], STDIN_FILENO);
 	close(fd[0]);
-	close(fd[1]);
 	waitpid(pid, status, 0);
 	*status = (WIFEXITED(*status) != 0) * WEXITSTATUS(*status) \
 			+ (WIFEXITED(*status) == 0) * 1;

@@ -6,7 +6,7 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/04 08:27:08 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/02/10 22:48:18 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/02/11 10:43:27 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,9 +22,13 @@ int	ft_pwd(void)
 	return (1);
 }
 
-int	ft_cd(char *text)
+int	ft_cd(char *text, int *status)
 {
-	chdir(text);
+	if (chdir(text) != 0)
+	{
+		*status = 2;
+		printf("Error: No such file or directory\n");
+	}
 	return (1);
 }
 
