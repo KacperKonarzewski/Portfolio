@@ -6,7 +6,7 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/04 08:27:08 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/02/11 10:43:27 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/02/12 10:01:48 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ int	ft_echo(char **text, t_env_var *envp, int *status)
 	handle_special(text + 1, envp, 0, status);
 	while (text[i])
 	{
-		if (check_redirections(text, i))
+		if (check_redirections(text, i, envp))
 			continue ;
 		printf("%s", text[i++]);
 	}

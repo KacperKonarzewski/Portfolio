@@ -6,7 +6,7 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/03 09:29:13 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/02/11 12:34:01 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/02/12 08:29:18 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,14 +66,14 @@ void	handle_hear_doc(char *limiter)
 	wait(NULL);
 }
 
-int	check_redirections(char **splitted, int i)
+int	check_redirections(char **splitted, int i, t_env_var *envp)
 {
 	if (!ft_strncmp(splitted[i], "<", 2) && splitted[i + 1])
-		return (reassemble_split(splitted, i, 0));
+		return (reassemble_split(splitted, i, 0, envp));
 	if (!ft_strncmp(splitted[i], ">", 2) && splitted[i + 1])
-		return (reassemble_split(splitted, i, 1));
+		return (reassemble_split(splitted, i, 1, envp));
 	if (!ft_strncmp(splitted[i], ">>", 3) && splitted[i + 1])
-		return (reassemble_split(splitted, i, 2));
+		return (reassemble_split(splitted, i, 2, envp));
 	if (!ft_strncmp(splitted[i], "<<", 3) && splitted[i + 1])
 	{
 		handle_hear_doc(ft_strtrim(splitted[i + 1], " "));
@@ -144,7 +144,7 @@ void	handle_special(char **splitted, t_env_var *envp, int type, int *status)
 		}
 		else
 			last = 0;
-		if (type && check_redirections(splitted, i) && splitted[i--] == 0)
+		if (type && check_redirections(splitted, i, envp) && splitted[i--] == 0)
 			break ;
 		if (last == 0)
 			remove_quotes(&splitted[i], type);

@@ -6,7 +6,7 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/31 01:51:53 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/02/11 12:08:36 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/02/12 09:44:17 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,11 @@ void	main_loop(int original_stdin, int original_stdout, t_env_var **envp)
 			free(text);
 			continue ;
 		}
-		if (ft_chrquotes(text, '|'))
+		if (ft_strnstr(text, "&&", ft_strlen(text)) || \
+			ft_strnstr(text, "||", ft_strlen(text)) || \
+			ft_strnstr(text, "(", ft_strlen(text)))
+			process_logical_operators(text, *envp, &status);
+		else if (ft_chrquotes(text, '|'))
 			manage_pipes(text, *envp, &status);
 		else
 			child(text, *envp, &status);

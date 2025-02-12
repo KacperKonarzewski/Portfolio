@@ -6,7 +6,7 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/03 09:26:12 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/02/05 09:15:46 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/02/12 08:53:08 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,33 +36,43 @@ void	free_split(char **splited_str)
 	free(splited_str);
 }
 
-int	file_opener(char *argv, int i)
+static int	file_opener(char **file, int i, t_env_var *envp)
 {
-	int	fd;
+	int		fd;
+	char	*key;
 
+	if (ft_strchr(*file, '$'))
+	{
+		key = extract_key(*file);
+		find_key(file, key, 0, envp);
+	}
 	if (!i)
-		fd = open(argv, O_RDONLY, 0777);
+		fd = open(*file, O_RDONLY, 0777);
 	else if (i == 1)
-		fd = open(argv, O_WRONLY | O_CREAT | O_TRUNC, 0777);
+		fd = open(*file, O_WRONLY | O_CREAT | O_TRUNC, 0777);
 	else
-		fd = open(argv, O_WRONLY | O_CREAT | O_APPEND, 0777);
+		fd = open(*file, O_WRONLY | O_CREAT | O_APPEND, 0777);
 	if (fd == -1)
 		error(1, NULL, 0);
 	return (fd);
 }
 
-int	reassemble_split(char **splitted, int i, int type)
+int	reassemble_split(char **splitted, int i, int type, t_env_var *envp)
 {
-	int	fd;
+	int		fd;
+	char	*trimmed;
 
-	fd = file_opener(splitted[i + 1], type);
+	trimmed = ft_strtrim(splitted[i + 1], " ");
+	free(splitted[i + 1]);
+	splitted[i + 1] = trimmed;
+	fd = file_opener(&splitted[i + 1], type, envp);
 	if (type == 0)
 		dup2(fd, STDIN_FILENO);
 	else
 		dup2(fd, STDOUT_FILENO);
 	close(fd);
-	free(splitted[i]);
 	free(splitted[i + 1]);
+	free(splitted[i]);
 	splitted[i] = 0;
 	splitted[i + 1] = 0;
 	while (splitted[i + 2])
