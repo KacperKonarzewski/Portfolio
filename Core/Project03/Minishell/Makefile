@@ -19,7 +19,7 @@ CYAN        = \033[0;96m
 
 # Sources
 
-SRC_FILES   = utils2.c parser_logic.c builtins.c handle_env.c handle_env2.c executor.c signals.c parser.c parser2.c utils.c main.c
+SRC_FILES   = utils2.c wildcards.c parser_logic.c builtins.c handle_env.c handle_env2.c executor.c signals.c parser.c parser2.c utils.c main.c
 SRC         = $(addprefix $(SRC_DIR), $(SRC_FILES))
 OBJ         = $(addprefix $(OBJ_DIR), $(SRC_FILES:.c=.o))
 

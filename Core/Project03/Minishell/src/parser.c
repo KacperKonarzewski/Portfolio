@@ -6,7 +6,7 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/03 09:29:13 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/02/12 08:29:18 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/02/12 20:05:07 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,15 +66,15 @@ void	handle_hear_doc(char *limiter)
 	wait(NULL);
 }
 
-int	check_redirections(char **splitted, int i, t_env_var *envp)
+int	chck_redirc(char **splitted, int i, t_env_var *envp)
 {
-	if (!ft_strncmp(splitted[i], "<", 2) && splitted[i + 1])
+	if (!ft_strncmp(splitted[i], "< ", 2) && splitted[i + 1])
 		return (reassemble_split(splitted, i, 0, envp));
-	if (!ft_strncmp(splitted[i], ">", 2) && splitted[i + 1])
+	if (!ft_strncmp(splitted[i], "> ", 2) && splitted[i + 1])
 		return (reassemble_split(splitted, i, 1, envp));
-	if (!ft_strncmp(splitted[i], ">>", 3) && splitted[i + 1])
+	if (!ft_strncmp(splitted[i], ">> ", 3) && splitted[i + 1])
 		return (reassemble_split(splitted, i, 2, envp));
-	if (!ft_strncmp(splitted[i], "<<", 3) && splitted[i + 1])
+	if (!ft_strncmp(splitted[i], "<< ", 3) && splitted[i + 1])
 	{
 		handle_hear_doc(ft_strtrim(splitted[i + 1], " "));
 		free(splitted[i]);
@@ -125,28 +125,47 @@ void	handle_status(char **split, char *k, ptrdiff_t chars[2], int *stat)
 void	handle_special(char **splitted, t_env_var *envp, int type, int *status)
 {
 	char	*key;
-	int		i;
-	int		last;
+	int		i[2];
 
-	i = -1;
-	last = 0;
-	while (splitted[++i])
+	i[0] = -1;
+	i[1] = 0;
+	while (splitted[++(i[0])])
 	{
-		if (last == 0)
-			handle_space(&splitted[i], type);
-		if (ft_strchr(splitted[i], '$') && !ft_strnstr(splitted[i], "$ ", \
-			ft_strlen(splitted[i])) && splitted[i][0] != '\'')
+		if (i[1] == 0)
+			handle_space(&splitted[i[0]], type);
+		if (ft_strchr(splitted[i[0]], '*'))
+        {
+            char *expand = expand_wildcards(splitted[i[0]]);
+            char **expanded = ft_split_quotes(expand, " ");
+            free(splitted[i[0]]);
+            splitted[i[0]] = NULL;
+
+            if (expanded)
+            {
+                int j = 0, k = i[0];
+                while (expanded[j])
+                {
+                    splitted[k++] = expanded[j];  
+                    expanded[j] = NULL;  
+                    j++;
+                }
+                free(expanded);
+            }
+            free(expand);
+        }
+
+		if (ft_strchr(splitted[i[0]], '$') && !ft_strnstr(splitted[i[0]], "$ ", \
+			ft_strlen(splitted[i[0]])) && splitted[i[0]][0] != '\'')
 		{
-			last = 1;
-			key = extract_key(splitted[i]);
-			if (find_key(&splitted[i], key, status, envp))
-				i--;
+			i[1] = 1;
+			key = extract_key(splitted[i[0]]);
+			find_key(&splitted[i[0]--], key, status, envp);
 		}
 		else
-			last = 0;
-		if (type && check_redirections(splitted, i, envp) && splitted[i--] == 0)
+			i[1] = 0;
+		if (type && chck_redirc(splitted, i[0], envp) && splitted[i[0]--] == 0)
 			break ;
-		if (last == 0)
-			remove_quotes(&splitted[i], type);
+		if (i[1] == 0)
+			remove_quotes(&splitted[i[0]], type);
 	}
 }

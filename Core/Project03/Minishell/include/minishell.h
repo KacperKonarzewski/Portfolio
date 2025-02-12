@@ -6,7 +6,7 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/31 01:49:52 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/02/12 09:28:06 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/02/12 19:19:17 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,7 +75,7 @@ int		ft_pwd(void);
 int		ft_cd(char *text, int *status);
 int		ft_echo(char **text, t_env_var *envp, int *status);
 int		get_input(char **line);
-int		check_redirections(char **splitted, int i, t_env_var *envp);
+int		chck_redirc(char **splitted, int i, t_env_var *envp);
 void	envp_to_list(t_env_var **head, char **envp);
 int		print_env_vars(t_env_var *current);
 void	free_env_list(t_env_var **head);
@@ -84,5 +84,6 @@ char	**build_env_array(t_env_var **head);
 void	unset_env_var(t_env_var **head, const char *key);
 char	**ft_split_quotes(char *str, char *charset);
 void	process_logical_operators(char *cmd, t_env_var *envp, int *status);
+char	*expand_wildcards(char *pattern);
 
 #endif
