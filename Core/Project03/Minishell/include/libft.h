@@ -6,7 +6,7 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/30 13:36:10 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/02/05 10:38:51 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/02/13 11:57:12 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,6 +67,7 @@ char	*ft_strmapi(const char *s, char (*f)(unsigned int, char));
 char	*ft_strtrim(const char *s1, const char *set);
 char	*ft_strrchr(const char *s, int c);
 char	*ft_itoa(int n);
+char	*ft_strcpy(char *dest, char *src);
 char	**ft_split(char *str, char *charset);
 size_t	ft_strlcat(char *dst, const char *src, size_t size);
 size_t	ft_strlcpy(char *dst, const char *src, size_t size);

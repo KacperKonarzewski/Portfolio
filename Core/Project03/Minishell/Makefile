@@ -19,7 +19,12 @@ CYAN        = \033[0;96m
 
 # Sources
 
-SRC_FILES   = utils2.c wildcards.c parser_logic.c builtins.c handle_env.c handle_env2.c executor.c signals.c parser.c parser2.c utils.c main.c
+SRC_FILES   = wildcards/realloc_split.c wildcards/wildcards.c wildcards/wildcards2.c \
+logic_operators/parser_logic.c logic_operators/parser_logic2.c logic_operators/parser_logic3.c logic_operators/tokens.c logic_operators/tokens2.c \
+builtins/builtins.c builtins/handle_env.c builtins/handle_env2.c \
+execute/executor.c execute/parser.c execute/parser2.c \
+utils/utils2.c utils/utils.c utils/signals.c \
+main.c
 SRC         = $(addprefix $(SRC_DIR), $(SRC_FILES))
 OBJ         = $(addprefix $(OBJ_DIR), $(SRC_FILES:.c=.o))
 
@@ -44,6 +49,11 @@ $(LIBFT):
 
 $(OBJF):
 		@mkdir -p $(OBJ_DIR)
+		@mkdir -p $(OBJ_DIR)/wildcards
+		@mkdir -p $(OBJ_DIR)/logic_operators
+		@mkdir -p $(OBJ_DIR)/builtins
+		@mkdir -p $(OBJ_DIR)/execute
+		@mkdir -p $(OBJ_DIR)/utils
 
 clean:
 		@$(RM) -rf $(OBJ_DIR)

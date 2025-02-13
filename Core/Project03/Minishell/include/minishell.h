@@ -6,7 +6,7 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/31 01:49:52 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/02/12 19:19:17 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/02/13 12:19:17 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,8 @@ void	child(char *cmd, t_env_var *envp, int *status);
 void	child_pipe(char *cmd, t_env_var *envp, int is_last, int *status);
 char	*get_env_var(t_env_var *head, const char *key);
 int		handle_text(char **text, t_env_var *envp, int *status);
-void	handle_special(char **splitted, t_env_var *envp, int type, int *status);
+void	handle_special(char ***splitted, t_env_var *envp, int type,
+			int *status);
 int		find_key(char **split, char *key, int *status, t_env_var *envp);
 char	*extract_key(char *splitted);
 void	handle_status(char **split, char *k, ptrdiff_t chars[2], int *stat);
@@ -85,5 +86,18 @@ void	unset_env_var(t_env_var **head, const char *key);
 char	**ft_split_quotes(char *str, char *charset);
 void	process_logical_operators(char *cmd, t_env_var *envp, int *status);
 char	*expand_wildcards(char *pattern);
+void	check_wildcards(char ***splitted, int i);
+void	realloc_split(char ***splitted, char **expanded, int i);
+char	*expand_wildcards(char *pattern);
+t_ast	*handle_parenthesis(t_token **tokens);
+t_ast	*handle_command(t_token **tokens);
+t_ast	*ft_new_ast_node(t_node_type type, char *command);
+t_token	*ft_tokenize(char *cmd);
+void	ft_evaluate_ast(t_ast *node, t_env_var *envp, int *status);
+void	ft_free_tokens(t_token *tokens);
+void	ft_free_ast(t_ast *node);
+char	*get_next_token(char **ptr);
+void	skip_spaces(char **ptr);
+void	ft_add_token(t_token **head, const char *value);
 
 #endif

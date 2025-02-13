@@ -6,7 +6,7 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/31 01:51:53 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/02/12 09:44:17 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/02/13 12:26:45 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,31 +68,29 @@ int	handle_text(char **text, t_env_var *envp, int *status)
 	return (0);
 }
 
-void	main_loop(int original_stdin, int original_stdout, t_env_var **envp)
+void	main_loop(int original_stdin, int original_stdout, t_env_var **envp,
+				int *status)
 {
 	char	*text;
-	int		status;
 
-	status = 0;
 	while (1)
 	{
 		text = readline("MiniAss 🍑>");
 		if (!text)
 			break ;
 		add_history(text);
-		if (handle_before(text, envp, &status))
+		if (handle_before(text, envp, status))
 		{
 			free(text);
 			continue ;
 		}
-		if (ft_strnstr(text, "&&", ft_strlen(text)) || \
-			ft_strnstr(text, "||", ft_strlen(text)) || \
-			ft_strnstr(text, "(", ft_strlen(text)))
-			process_logical_operators(text, *envp, &status);
+		if (ft_strnstr(text, "&&", ft_strlen(text)) || ft_strnstr(text, "||", \
+		ft_strlen(text)) || ft_strnstr(text, "(", ft_strlen(text)))
+			process_logical_operators(text, *envp, status);
 		else if (ft_chrquotes(text, '|'))
-			manage_pipes(text, *envp, &status);
+			manage_pipes(text, *envp, status);
 		else
-			child(text, *envp, &status);
+			child(text, *envp, status);
 		dup2(original_stdin, STDIN_FILENO);
 		dup2(original_stdout, STDOUT_FILENO);
 		free(text);
@@ -105,7 +103,9 @@ int	main(int argc, char **argv, char **envp)
 	int					original_stdout;
 	struct sigaction	sa;
 	t_env_var			*list;
+	int					status;
 
+	status = 0;
 	(void)argc;
 	(void)argv;
 	list = NULL;
@@ -117,7 +117,7 @@ int	main(int argc, char **argv, char **envp)
 	original_stdin = dup(STDIN_FILENO);
 	original_stdout = dup(STDOUT_FILENO);
 	envp_to_list(&list, envp);
-	main_loop(original_stdin, original_stdout, &list);
+	main_loop(original_stdin, original_stdout, &list, &status);
 	printf("exit\n");
 	free_env_list(&list);
 	close(original_stdin);
