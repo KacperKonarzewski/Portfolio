@@ -64,7 +64,7 @@ int	main()
 		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 		if (input == "ADD")
 			book.PushContact(AddContactForm());
-		else if (input == "SEARCH")
+		else if (input == "SEARCH" && book.getCurrentSize() > 0)
 		{
 			size = book.getCurrentSize();
 			for (int i = 0; i < size; i++)
