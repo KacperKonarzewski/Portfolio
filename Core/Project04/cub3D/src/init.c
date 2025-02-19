@@ -6,7 +6,7 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/18 09:22:29 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/02/18 11:34:05 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/02/19 13:44:54 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,10 +26,10 @@ static int	check_map_extension(char *map)
 	return (fd);
 }
 
-void	init_vars(t_vars **vars, char *map)
+void	init_vars(t_vars *vars, char *map)
 {
 	int		fd;
-	char	*line;
 
 	fd = check_map_extension(map);
+	vars->map = create_map(fd);
 }

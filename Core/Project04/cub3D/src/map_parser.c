@@ -6,7 +6,7 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/18 09:24:20 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/02/18 12:28:42 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/02/19 13:36:58 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ static bool	check_order(char *line, t_map *map)
 
 	splited = ft_split(line, " ");
 	find_texture(splited[0], &current);
-	if (current == -1)
+	if ((int)current == -1)
 		return (ft_free_split(splited), true);
 	if (used_textures[current])
 		return (ft_free_split(splited), error(false, \
@@ -88,9 +88,11 @@ static bool	check_if_empty(char **line, int fd)
 
 t_map	create_map(int fd)
 {
+	char	buffer[100][100];
 	char	*line;
 	t_map	map;
 
+	init_empty_textures(&map);
 	line = get_next_line(fd);
 	while (line)
 	{
@@ -101,4 +103,10 @@ t_map	create_map(int fd)
 		free(line);
 		line = get_next_line(fd);
 	}
+	if (check_textures(map))
+		return (free(line), free_texures(&map), error(false, \
+				"Error!\nMissing texture side!"), map);
+	load_map(&line, fd, &map, buffer);
+	validate_map(buffer);
+	return (map);
 }

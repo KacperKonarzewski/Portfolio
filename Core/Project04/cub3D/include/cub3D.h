@@ -6,7 +6,7 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/18 08:38:47 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/02/18 11:57:05 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/02/19 10:57:16 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@
 # include "libft.h"
 # include <stdbool.h>
 # include <stdio.h>
+# include <string.h>
 # include <errno.h>
 # include <math.h>
 # include <fcntl.h>
@@ -117,5 +118,10 @@ void	init_vars(t_vars **vars, char *map);
 // map_parser.c
 
 t_map	create_map(int fd);
+
+// map_parser2.c
+
+bool	check_textures(t_map map);
+void	free_texures(t_map *map);
 
 #endif
