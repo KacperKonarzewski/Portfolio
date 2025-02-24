@@ -6,15 +6,26 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/18 09:24:20 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/02/19 14:05:47 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/02/24 10:18:30 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "cub3D.h"
 
-bool	validate_map(char buffer[100][100])
+bool	validate_chars(char buffer[100][100])
 {
-	
+	int	i;
+	int	j;
+
+	i = -1;
+	while (++i < 100 && buffer[i])
+	{
+		j = -1;
+		while (++j < 100 && buffer[i][j])
+			if (!ft_strchr(" 012NSEW", buffer[i][j]))
+				return (true);
+	}
+	return (false);
 }
 
 static void	init_buffer(char buffer[100][100])
@@ -31,7 +42,7 @@ static void	init_buffer(char buffer[100][100])
 	}
 }
 
-void	load_map(char **line, int fd, t_map *map, char buffer[100][100])
+void	load_map(char **line, int fd, char buffer[100][100])
 {
 	int		i;
 	int		j;
@@ -42,12 +53,7 @@ void	load_map(char **line, int fd, t_map *map, char buffer[100][100])
 	{
 		i = -1;
 		while (j < 100 && ++i < 100 && (*line)[i] && (*line) != '\n')
-		{
-			if ((*line) == ' ')
-				buffer[j][i] = '1';
-			else
-				buffer[j][i] = (*line)[i];
-		}
+			buffer[j][i] = (*line)[i];
 		free(*line);
 		*line = get_next_line(fd);
 	}

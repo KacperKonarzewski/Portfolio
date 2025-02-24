@@ -6,7 +6,7 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/18 08:38:47 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/02/19 10:57:16 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/02/24 08:50:14 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,5 +123,6 @@ t_map	create_map(int fd);
 
 bool	check_textures(t_map map);
 void	free_texures(t_map *map);
+void	load_map(char **line, int fd, char buffer[100][100]);
 
 #endif

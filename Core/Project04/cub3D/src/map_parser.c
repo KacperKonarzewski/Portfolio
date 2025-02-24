@@ -6,7 +6,7 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/18 09:24:20 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/02/19 13:36:58 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/02/24 10:06:20 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,7 +106,9 @@ t_map	create_map(int fd)
 	if (check_textures(map))
 		return (free(line), free_texures(&map), error(false, \
 				"Error!\nMissing texture side!"), map);
-	load_map(&line, fd, &map, buffer);
-	validate_map(buffer);
+	load_map(&line, fd, buffer);
+	if (validate_chars(buffer) && validate_frame(&map, buffer))
+		return (free_textures(&map), error(false, "Error!\nWrong map!"), map);
+	convert_buffer(&map, buffer);
 	return (map);
 }
