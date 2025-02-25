@@ -17,7 +17,7 @@ class ClapTrap
 		ClapTrap(std::string name);
 		ClapTrap(const ClapTrap &c);
 		ClapTrap& operator=(const ClapTrap &c);
-		~ClapTrap();
+		virtual ~ClapTrap();
 		std::string getName( void ) const;
 		int getHp( void ) const;
 		int getEp( void ) const;
