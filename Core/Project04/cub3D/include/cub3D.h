@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cub3D.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
+/*   By: kacper <kacper@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/18 08:38:47 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/02/24 08:50:14 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/03/02 18:45:45 by kacper           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ typedef struct s_texture_info
 	char		*path;
 }				t_texture_info;
 
-typedef struct t_tile
+typedef struct s_point
 {
 	t_object	type;
 	int			last;
@@ -113,7 +113,7 @@ void	error(bool type, char *message);
 
 // init.c
 
-void	init_vars(t_vars **vars, char *map);
+void	init_vars(t_vars *vars, char *map);
 
 // map_parser.c
 

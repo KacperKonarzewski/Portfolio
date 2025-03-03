@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   map_parser.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
+/*   By: kacper <kacper@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/18 09:24:20 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/02/24 10:06:20 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/03/02 19:42:30 by kacper           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,13 +59,13 @@ static bool	check_order(char *line, t_map *map)
 		return (ft_free_split(splited), true);
 	if (used_textures[current])
 		return (ft_free_split(splited), error(false, \
-		"Error!\nDuplicate texture detected!"), true);
+		"Duplicate texture detected!"), true);
 	if (current < last)
 		return (ft_free_split(splited), error(false, \
-		"Error!\nWrong map textures order!"), true);
+		"Wrong map textures order!"), true);
 	if (!splited[1])
 		return (ft_free_split(splited), error(false, \
-		"Error!\nMissing texture path!"), true);
+		"Missing texture path!"), true);
 	last = current;
 	used_textures[current] = true;
 	map->textures[current].path = ft_strdup(splited[1]);
@@ -105,10 +105,11 @@ t_map	create_map(int fd)
 	}
 	if (check_textures(map))
 		return (free(line), free_texures(&map), error(false, \
-				"Error!\nMissing texture side!"), map);
+				"Missing texture side!"), map);
 	load_map(&line, fd, buffer);
-	if (validate_chars(buffer) && validate_frame(&map, buffer))
-		return (free_textures(&map), error(false, "Error!\nWrong map!"), map);
-	convert_buffer(&map, buffer);
+	if (validate_chars(buffer) && validate_frame(buffer, count_rows(buffer)))
+		return (free_textures(&map), error(false, "Wrong map!"), map);
+	if (convert_buffer(&map, buffer, count_rows(buffer)))
+		return (free_textures(&map), error(false, "Error converting"), map);
 	return (map);
 }

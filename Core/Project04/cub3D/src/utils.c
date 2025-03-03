@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
+/*   By: kacper <kacper@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/18 09:19:55 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/02/18 09:57:50 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/03/02 19:41:41 by kacper           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ void	error(bool type, char *message)
 	}
 	else
 	{
-		printf("%s\n", message);
+		printf("Error!\n%s\n", message);
 		exit(0);
 	}
 }
