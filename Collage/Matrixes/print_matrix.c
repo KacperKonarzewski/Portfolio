@@ -6,29 +6,11 @@
 /*   By: kkonarze <kkonarze@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/13 08:56:32 by kkonarze          #+#    #+#             */
-/*   Updated: 2025/03/13 09:07:16 by kkonarze         ###   ########.fr       */
+/*   Updated: 2025/03/14 08:56:28 by kkonarze         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-static int	longest_line_width(int **digit_lenghts)
-{
-	int	i;
-	int	j;
-	int	tmp;
-	int	tmp2;
-
-	i = -1;
-	tmp2 = 0;
-	while (++i < 3)
-	{
-		tmp = 0;
-		j = -1;
-		while (++j < 3)
-			tmp += digit_lenghts[i][j];
-		if (tmp > tmp2)
-			tmp2 = tmp;
-	}
-}
+#include "matrixes.h"
 
 //Function used for counting decimal places in a n number.
 static int	count_number_len(int n)
@@ -36,6 +18,8 @@ static int	count_number_len(int n)
 	int	i;
 
 	i = 0;
+	if (n < 0)
+		i++;
 	while (n != 0)
 	{
 		n /= 10;
@@ -44,19 +28,43 @@ static int	count_number_len(int n)
 	return (i);
 }
 
-void	print_matrix(int **matrix)
+void	print_matrix(int matrix[3][3])
 {
-	int	digit_lenghts[3][3];
+	int	digit_lengths[3][3];
+	int	col_width[3] = {0, 0, 0};
+	int	border_width;
 	int	i;
 	int	j;
 
-	i = -1;
-	while (++i < 3)
+	i = 0;
+	while (i < 3)
 	{
-		j = -1;
-		while (++j)
-			digit_lenghts[i][j] = count_number_len(matrix[i][j]);
+		j = 0;
+		while (j < 3)
+		{
+			digit_lengths[i][j] = count_number_len(matrix[i][j]);
+			if (digit_lengths[i][j] > col_width[j])
+				col_width[j] = digit_lengths[i][j];
+			j++;
+		}
+		i++;
 	}
-	i = -1;
-	printf("--%*s--", digit_lenghts[0][j]);
+	border_width = col_width[0] + col_width[1] + col_width[2] + 2;
+	printf("--%*s--\n", border_width - 2, "");
+	i = 0;
+	while (i < 3)
+	{
+		printf("|");
+		j = 0;
+		while (j < 3)
+		{
+			if (j > 0)
+				printf(" ");
+			printf("%*d", col_width[j], matrix[i][j]);
+			j++;
+		}
+		printf("|\n");
+		i++;
+	}
+	printf("--%*s--\n", border_width - 2 , "");
 }
