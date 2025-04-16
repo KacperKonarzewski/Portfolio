@@ -22,10 +22,6 @@ private:
 	{
 		virtual const char *what() const throw();
 	};
-	class FormNotSignedException : public std::exception
-	{
-		virtual const char *what() const throw();
-	};
 public:
 	Form(std::string const name, int signGrade, int executeGrade);
 	~Form();
