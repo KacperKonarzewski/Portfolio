@@ -2,7 +2,7 @@
 #ifndef SCALARCONVERTER_H
 #define SCALARCONVERTER_H
 
-#include "string"
+#include <string>
 
 typedef struct s_values
 {
@@ -17,11 +17,13 @@ class ScalarConverter
 {
 private:
 	ScalarConverter();
+	ScalarConverter(const ScalarConverter &cpy);
+	ScalarConverter& operator=(const ScalarConverter& other);
 	~ScalarConverter();
 public:
-	ScalarConverter(const ScalarConverter &cpy) = delete;
-	ScalarConverter& operator=(const ScalarConverter& other) = delete;
 	static t_values convert(std::string str);
 };
+
+void	print_t_values(t_values vals);
 
 #endif
